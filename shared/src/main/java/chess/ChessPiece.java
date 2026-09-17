@@ -55,28 +55,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
-        if (piece.getPieceType() == PieceType.BISHOP) {
-            return List.of(new ChessMove(new ChessPosition(5, 4), new ChessPosition(1, 8), null));
-        } else if (piece.getPieceType() == PieceType.KNIGHT) {
-            return List.of();
-        } else if (piece.getPieceType() == PieceType.ROOK) {
-            return List.of();
-        } else if (piece.getPieceType() == PieceType.KING) {
-            return List.of();
-        } else if (piece.getPieceType() == PieceType.QUEEN) {
-            return List.of();
-        } else if (piece.getPieceType() == PieceType.PAWN) {
-            return List.of();
-        }
-
-        // returns Collection<ChessMove>??
-        //return MoveCalculator<piece.getPieceType()>;
-
-        // dont inherit from chesspiece class
-        // instead have piece moves calculator interface/abstract class
-        // have the 6 subclasses of that abstract class
-
-        return List.of();
+        return MoveCalculator.pieceMoves(board, myPosition, piece);
     }
 
     @Override
@@ -95,6 +74,6 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        return String.format("Piece toString: %s,%s", pieceColor, type);
+        return String.format("%s,%s", pieceColor, type);
     }
 }

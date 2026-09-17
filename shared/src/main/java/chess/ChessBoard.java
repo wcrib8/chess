@@ -61,6 +61,6 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        return "ChessBoard toString" + "board=" + Arrays.toString(board);
+        return "board=" + Arrays.toString(board);
     }
 }
