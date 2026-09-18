@@ -19,6 +19,20 @@ public interface MoveCalculator {
         };
     }
 
+    // helper function for checking list of move options
+    static void addToList(List<ChessPosition> moveOptions, List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor) {
+        for (ChessPosition pos : moveOptions) {
+            if (pos.isValid()) {
+                if (board.getPiece(pos) == null) {
+                    possibleMoves.add(new ChessMove(myPosition, pos, null));
+                }
+                else if (board.getPiece(pos).getTeamColor() != myColor) {
+                    possibleMoves.add(new ChessMove(myPosition, pos, null));
+                }
+            }
+        }
+    }
+
     // helper function for bishops, rooks, and queens
 
     //subclasses for each piece
@@ -75,16 +89,17 @@ public interface MoveCalculator {
             );
 
             // check if ally or end of board, cant add. otherwise add
-            for (ChessPosition pos : options) {
-                if (pos.isValid()) {
-                    if (board.getPiece(pos) == null) {
-                        possibleMoves.add(new ChessMove(myPosition, pos, null));
-                    }
-                    else if (board.getPiece(pos).getTeamColor() != myColor) {
-                        possibleMoves.add(new ChessMove(myPosition, pos, null));
-                    }
-                }
-            }
+//            for (ChessPosition pos : options) {
+//                if (pos.isValid()) {
+//                    if (board.getPiece(pos) == null) {
+//                        possibleMoves.add(new ChessMove(myPosition, pos, null));
+//                    }
+//                    else if (board.getPiece(pos).getTeamColor() != myColor) {
+//                        possibleMoves.add(new ChessMove(myPosition, pos, null));
+//                    }
+//                }
+//            }
+            addToList(options, possibleMoves, board, myPosition, myColor);
             return possibleMoves;
         }
     }
@@ -111,16 +126,7 @@ public interface MoveCalculator {
             );
 
             // check if ally or end of board, otherwise add
-            for (ChessPosition pos : options) {
-                if (pos.isValid()) {
-                    if (board.getPiece(pos) == null) {
-                        possibleMoves.add(new ChessMove(myPosition, pos, null));
-                    }
-                    else if (board.getPiece(pos).getTeamColor() != myColor) {
-                        possibleMoves.add(new ChessMove(myPosition, pos, null));
-                    }
-                }
-            }
+            addToList(options, possibleMoves, board, myPosition, myColor);
             return possibleMoves;
         }
     }
