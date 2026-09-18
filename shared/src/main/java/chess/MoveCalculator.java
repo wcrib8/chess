@@ -10,7 +10,7 @@ public interface MoveCalculator {
     //general move piece func to call subclass
     public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
         return switch (board.getPiece(myPosition).getPieceType()) {
-            case ChessPiece.PieceType.BISHOP -> BishopMove.pieceMoves(board, myPosition);
+            case ChessPiece.PieceType.BISHOP -> BishopMove.pieceMoves(board, myPosition, piece);
             case ChessPiece.PieceType.ROOK -> null;
             case ChessPiece.PieceType.KNIGHT -> KnightMove.pieceMoves(board, myPosition, piece);
             case ChessPiece.PieceType.KING -> KingMove.pieceMoves(board, myPosition, piece);
@@ -34,14 +34,44 @@ public interface MoveCalculator {
     }
 
     // helper function for bishops, rooks, and queens
+    static void addInLine(List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor, int x, int y) {
+        // while is valid and empty, add and continue; if enemy, add to list then stop; if ally, stop
+        ChessPosition pos = new ChessPosition(myPosition.getRow()+x, myPosition.getColumn()+y);
+        while (pos.isValid()) {
+            if (board.getPiece(pos) == null) {
+                possibleMoves.add(new ChessMove(myPosition, pos, null));
+            }
+            else if (board.getPiece(pos).getTeamColor() != myColor) {
+                possibleMoves.add(new ChessMove(myPosition, pos, null));
+                break;
+            }
+            else if (board.getPiece(pos).getTeamColor() == myColor) break;
+            pos = new ChessPosition(pos.getRow()+x, pos.getColumn()+y);
+        }
+    }
 
     //subclasses for each piece
     public class BishopMove {
 
         //public static
 
-        public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-//            //return List.of(new ChessMove(new ChessPosition(5, 4), new ChessPosition(1, 8), null));
+        public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
+            // setup needed vars and list
+            ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+            // check all options
+            int curr_row = myPosition.getRow();
+            int curr_col = myPosition.getColumn();
+            ChessGame.TeamColor myColor = piece.getTeamColor();
+
+            // add to possible moves list with helper func, for each direction
+            addInLine(possibleMoves, board, myPosition, myColor, 1, 1);
+            addInLine(possibleMoves, board, myPosition, myColor, 1, -1);
+            addInLine(possibleMoves, board, myPosition, myColor, -1, 1);
+            addInLine(possibleMoves, board, myPosition, myColor, -1, -1);
+
+            return possibleMoves;
+
+//              return List.of(new ChessMove(new ChessPosition(5, 4), new ChessPosition(1, 8), null));
 //
 //            // make list to hold possible positions to move to
 //            ArrayList<ChessMove> possibleMoves = new ArrayList<>();
@@ -56,10 +86,7 @@ public interface MoveCalculator {
 //                    // check if in path, has ally,
 //                }
 //            }
-//            // or recurse?
-//            // recurse has problem of list order? and need helper functions for each direction.
-//            // two for loops has problem of ally or enemy blocking further position options
-            return null;
+//
         }
     }
 
@@ -88,17 +115,6 @@ public interface MoveCalculator {
                 new ChessPosition(curr_row-1, curr_col+2)
             );
 
-            // check if ally or end of board, cant add. otherwise add
-//            for (ChessPosition pos : options) {
-//                if (pos.isValid()) {
-//                    if (board.getPiece(pos) == null) {
-//                        possibleMoves.add(new ChessMove(myPosition, pos, null));
-//                    }
-//                    else if (board.getPiece(pos).getTeamColor() != myColor) {
-//                        possibleMoves.add(new ChessMove(myPosition, pos, null));
-//                    }
-//                }
-//            }
             addToList(options, possibleMoves, board, myPosition, myColor);
             return possibleMoves;
         }
