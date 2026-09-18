@@ -14,7 +14,7 @@ public interface MoveCalculator {
             case ChessPiece.PieceType.ROOK -> RookMove.pieceMoves(board, myPosition, piece);
             case ChessPiece.PieceType.KNIGHT -> KnightMove.pieceMoves(board, myPosition, piece);
             case ChessPiece.PieceType.KING -> KingMove.pieceMoves(board, myPosition, piece);
-            case ChessPiece.PieceType.QUEEN -> null;
+            case ChessPiece.PieceType.QUEEN -> QueenMove.pieceMoves(board, myPosition, piece);
             case ChessPiece.PieceType.PAWN -> null;
         };
     }
@@ -56,9 +56,6 @@ public interface MoveCalculator {
         public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
             // setup needed vars and list
             ArrayList<ChessMove> possibleMoves = new ArrayList<>();
-            // check all options
-            int curr_row = myPosition.getRow();
-            int curr_col = myPosition.getColumn();
             ChessGame.TeamColor myColor = piece.getTeamColor();
 
             // add to possible moves list with helper func, for each direction
@@ -76,9 +73,6 @@ public interface MoveCalculator {
         public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
             // setup needed vars and list
             ArrayList<ChessMove> possibleMoves = new ArrayList<>();
-            // check all options
-            int curr_row = myPosition.getRow();
-            int curr_col = myPosition.getColumn();
             ChessGame.TeamColor myColor = piece.getTeamColor();
 
             // add to possible moves list with helper func, for each direction
@@ -146,6 +140,23 @@ public interface MoveCalculator {
 
     class QueenMove {
 
+        public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
+            // setup needed vars and list
+            ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+            ChessGame.TeamColor myColor = piece.getTeamColor();
+
+            // add to possible moves list with helper func, for each direction
+            addInLine(possibleMoves, board, myPosition, myColor, 1, 0);
+            addInLine(possibleMoves, board, myPosition, myColor, -1, 0);
+            addInLine(possibleMoves, board, myPosition, myColor, 0, 1);
+            addInLine(possibleMoves, board, myPosition, myColor, 0, -1);
+            addInLine(possibleMoves, board, myPosition, myColor, 1, 1);
+            addInLine(possibleMoves, board, myPosition, myColor, 1, -1);
+            addInLine(possibleMoves, board, myPosition, myColor, -1, 1);
+            addInLine(possibleMoves, board, myPosition, myColor, -1, -1);
+
+            return possibleMoves;
+        }
     }
 
     class PawnMove {
