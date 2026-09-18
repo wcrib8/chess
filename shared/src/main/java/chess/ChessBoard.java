@@ -42,7 +42,30 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
+        //var board = new ChessBoard();
         board = new ChessPiece[8][8];
+        // add pieces; white team then black, pawns first
+        for (int i=0; i <= 7; i++) {
+            //board[1][i].addPiece
+            board[1][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+            board[6][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+            if (i == 0 || i == 7) {
+                board[0][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
+                board[7][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
+            } if (i == 1 || i == 6) {
+                board[0][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
+                board[7][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
+            } if (i == 2 || i == 5) {
+                board[0][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
+                board[7][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
+            } if (i == 3) {
+                board[0][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
+                board[7][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
+            } if (i == 4) {
+                board[0][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
+                board[7][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
+            }
+        }
     }
 
     @Override
@@ -61,6 +84,14 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        return "board=" + Arrays.toString(board);
+        //return "board=" + Arrays.toString(board);
+        String boardSpots = "";
+        for (int r=0; r < 8; r++) {
+            for (int c=0; c < 8; c++) {
+                if (board[r][c] == null) boardSpots += "empty";
+                else boardSpots += board[r][c].toString();
+            }
+        }
+        return boardSpots;
     }
 }
