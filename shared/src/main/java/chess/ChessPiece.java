@@ -14,6 +14,7 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
+    private boolean hasNotMoved = true;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
@@ -45,6 +46,21 @@ public class ChessPiece {
     public PieceType getPieceType() {
         return type;
     }
+
+    public boolean checkMoved(ChessPosition myPosition) {
+        if (pieceColor == ChessGame.TeamColor.WHITE) {
+            if (myPosition.getRow() != 2) {
+                hasNotMoved = false;
+            }
+            return hasNotMoved;
+        }
+        if (myPosition.getRow() != 7) {
+            hasNotMoved = false;
+        }
+        return hasNotMoved;
+    }
+
+    public void markMoved() {hasNotMoved = false;}
 
     /**
      * Calculates all the positions a chess piece can move to

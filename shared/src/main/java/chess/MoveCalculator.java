@@ -15,7 +15,7 @@ public interface MoveCalculator {
             case ChessPiece.PieceType.KNIGHT -> KnightMove.pieceMoves(board, myPosition, piece);
             case ChessPiece.PieceType.KING -> KingMove.pieceMoves(board, myPosition, piece);
             case ChessPiece.PieceType.QUEEN -> QueenMove.pieceMoves(board, myPosition, piece);
-            case ChessPiece.PieceType.PAWN -> null;
+            case ChessPiece.PieceType.PAWN -> PawnMove.pieceMoves(board, myPosition, piece);
         };
     }
 
@@ -28,6 +28,31 @@ public interface MoveCalculator {
                 }
                 else if (board.getPiece(pos).getTeamColor() != myColor) {
                     possibleMoves.add(new ChessMove(myPosition, pos, null));
+                }
+            }
+        }
+    }
+
+    // pawn version of above func
+    static void pawnAddToList(List<ChessPosition> moveOptions, List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor) {
+        for (ChessPosition pos : moveOptions) {
+            if (pos.isValid()) {
+                if (pos.getColumn() != myPosition.getColumn()) {
+                    if (board.getPiece(pos) == null) continue;
+                    if (board.getPiece(pos).getTeamColor() != myColor) {
+                        possibleMoves.add(new ChessMove(myPosition, pos, null));
+                    }
+                    // check promotion here too
+                }
+                else {
+                    // check in front, then skip jump if hasmoved
+                    if (board.getPiece(pos) == null) {
+                        possibleMoves.add(new ChessMove(myPosition, pos, null));
+                    }
+//                    else if (board.getPiece(pos).getTeamColor() != myColor) {
+//                        possibleMoves.add(new ChessMove(myPosition, pos, null));
+//                    }
+                    // then promotion helper?
                 }
             }
         }
@@ -161,5 +186,39 @@ public interface MoveCalculator {
 
     class PawnMove {
 
+        public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
+            // set variables
+            ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+            int curr_row = myPosition.getRow();
+            int curr_col = myPosition.getColumn();
+            ChessGame.TeamColor myColor = piece.getTeamColor();
+
+            // set directional variable for white vs. black
+            int advanceDirection;
+            if (myColor == ChessGame.TeamColor.WHITE) {
+                advanceDirection = 1;
+            } else advanceDirection = -1;
+
+            // check for diagonal spots if enemy
+            ArrayList<ChessPosition> options = new ArrayList<>(List.of(
+                    new ChessPosition(curr_row+advanceDirection, curr_col-1),
+                    new ChessPosition(curr_row+advanceDirection, curr_col+1),
+                    new ChessPosition(curr_row+advanceDirection, curr_col)
+            ));
+            // if piece hasn't moved add extra move option
+            ChessPiece prevSquare = board.getPiece(new ChessPosition(curr_row+advanceDirection, curr_col));
+            if (piece.checkMoved(myPosition) && prevSquare == null) {
+                options.add(new ChessPosition(curr_row+advanceDirection*2, curr_col));
+                piece.markMoved();
+            }
+
+
+            pawnAddToList(options, possibleMoves, board, myPosition, myColor);
+
+            // for this move, check if promotion(not for skip jump)
+            // have promotion helper, need return 4 piece options
+
+            return possibleMoves;
+        }
     }
 }
