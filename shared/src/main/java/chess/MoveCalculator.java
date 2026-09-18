@@ -13,11 +13,13 @@ public interface MoveCalculator {
             case ChessPiece.PieceType.BISHOP -> BishopMove.pieceMoves(board, myPosition);
             case ChessPiece.PieceType.ROOK -> null;
             case ChessPiece.PieceType.KNIGHT -> KnightMove.pieceMoves(board, myPosition, piece);
-            case ChessPiece.PieceType.KING -> null;
+            case ChessPiece.PieceType.KING -> KingMove.pieceMoves(board, myPosition, piece);
             case ChessPiece.PieceType.QUEEN -> null;
             case ChessPiece.PieceType.PAWN -> null;
         };
     }
+
+    // helper function for bishops, rooks, and queens
 
     //subclasses for each piece
     public class BishopMove {
@@ -52,7 +54,6 @@ public interface MoveCalculator {
     }
 
     public class KnightMove {
-
 
         public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
             ArrayList<ChessMove> possibleMoves = new ArrayList<>();
@@ -90,6 +91,38 @@ public interface MoveCalculator {
 
     public class KingMove {
 
+        public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
+            ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+            // check all options
+            int curr_row = myPosition.getRow();
+            int curr_col = myPosition.getColumn();
+            ChessGame.TeamColor myColor = piece.getTeamColor();
+
+            // add move options
+            List<ChessPosition> options = Arrays.asList(
+                    new ChessPosition(curr_row+1, curr_col),
+                    new ChessPosition(curr_row+1, curr_col+1),
+                    new ChessPosition(curr_row, curr_col+1),
+                    new ChessPosition(curr_row-1, curr_col+1),
+                    new ChessPosition(curr_row-1, curr_col),
+                    new ChessPosition(curr_row-1, curr_col-1),
+                    new ChessPosition(curr_row, curr_col-1),
+                    new ChessPosition(curr_row+1, curr_col-1)
+            );
+
+            // check if ally or end of board, otherwise add
+            for (ChessPosition pos : options) {
+                if (pos.isValid()) {
+                    if (board.getPiece(pos) == null) {
+                        possibleMoves.add(new ChessMove(myPosition, pos, null));
+                    }
+                    else if (board.getPiece(pos).getTeamColor() != myColor) {
+                        possibleMoves.add(new ChessMove(myPosition, pos, null));
+                    }
+                }
+            }
+            return possibleMoves;
+        }
     }
 
     public class QueenMove {
