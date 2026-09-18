@@ -11,7 +11,7 @@ public interface MoveCalculator {
     public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
         return switch (board.getPiece(myPosition).getPieceType()) {
             case ChessPiece.PieceType.BISHOP -> BishopMove.pieceMoves(board, myPosition, piece);
-            case ChessPiece.PieceType.ROOK -> null;
+            case ChessPiece.PieceType.ROOK -> RookMove.pieceMoves(board, myPosition, piece);
             case ChessPiece.PieceType.KNIGHT -> KnightMove.pieceMoves(board, myPosition, piece);
             case ChessPiece.PieceType.KING -> KingMove.pieceMoves(board, myPosition, piece);
             case ChessPiece.PieceType.QUEEN -> null;
@@ -51,9 +51,7 @@ public interface MoveCalculator {
     }
 
     //subclasses for each piece
-    public class BishopMove {
-
-        //public static
+    class BishopMove {
 
         public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
             // setup needed vars and list
@@ -70,31 +68,30 @@ public interface MoveCalculator {
             addInLine(possibleMoves, board, myPosition, myColor, -1, -1);
 
             return possibleMoves;
-
-//              return List.of(new ChessMove(new ChessPosition(5, 4), new ChessPosition(1, 8), null));
-//
-//            // make list to hold possible positions to move to
-//            ArrayList<ChessMove> possibleMoves = new ArrayList<>();
-//            // go through chess board and add all possible ChessMoves
-//            int curr_row = myPosition.getRow();
-//            int curr_col = myPosition.getColumn();
-//
-//            // iterate right
-//            for (int row_val=0; row_val < 8; row_val++) {
-//                //iterate left
-//                for (int col_val=0; col_val < 8; col_val++) {
-//                    // check if in path, has ally,
-//                }
-//            }
-//
         }
     }
 
-    public class RookMove {
+    class RookMove {
 
+        public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
+            // setup needed vars and list
+            ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+            // check all options
+            int curr_row = myPosition.getRow();
+            int curr_col = myPosition.getColumn();
+            ChessGame.TeamColor myColor = piece.getTeamColor();
+
+            // add to possible moves list with helper func, for each direction
+            addInLine(possibleMoves, board, myPosition, myColor, 1, 0);
+            addInLine(possibleMoves, board, myPosition, myColor, -1, 0);
+            addInLine(possibleMoves, board, myPosition, myColor, 0, 1);
+            addInLine(possibleMoves, board, myPosition, myColor, 0, -1);
+
+            return possibleMoves;
+        }
     }
 
-    public class KnightMove {
+    class KnightMove {
 
         public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
             ArrayList<ChessMove> possibleMoves = new ArrayList<>();
@@ -120,7 +117,7 @@ public interface MoveCalculator {
         }
     }
 
-    public class KingMove {
+    class KingMove {
 
         public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
             ArrayList<ChessMove> possibleMoves = new ArrayList<>();
@@ -147,11 +144,11 @@ public interface MoveCalculator {
         }
     }
 
-    public class QueenMove {
+    class QueenMove {
 
     }
 
-    public class PawnMove {
+    class PawnMove {
 
     }
 }
