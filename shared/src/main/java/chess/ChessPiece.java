@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -52,16 +51,12 @@ public class ChessPiece {
             if (myPosition.getRow() != 2) {
                 hasNotMoved = false;
             }
-            return hasNotMoved;
-        }
-        if (myPosition.getRow() != 7) {
+        } else if (myPosition.getRow() != 7) {
             hasNotMoved = false;
         }
         return hasNotMoved;
     }
-
-    public void markMoved() {hasNotMoved = false;}
-
+    
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in

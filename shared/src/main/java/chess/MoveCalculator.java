@@ -8,7 +8,7 @@ import java.util.Collection;
 public interface MoveCalculator {
 
     //general move piece func to call subclass
-    public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
+    static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
         return switch (board.getPiece(myPosition).getPieceType()) {
             case ChessPiece.PieceType.BISHOP -> BishopMove.pieceMoves(board, myPosition, piece);
             case ChessPiece.PieceType.ROOK -> RookMove.pieceMoves(board, myPosition, piece);
@@ -25,8 +25,7 @@ public interface MoveCalculator {
             if (pos.isValid()) {
                 if (board.getPiece(pos) == null) {
                     possibleMoves.add(new ChessMove(myPosition, pos, null));
-                }
-                else if (board.getPiece(pos).getTeamColor() != myColor) {
+                } else if (board.getPiece(pos).getTeamColor() != myColor) {
                     possibleMoves.add(new ChessMove(myPosition, pos, null));
                 }
             }
@@ -45,22 +44,16 @@ public interface MoveCalculator {
                             possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.ROOK));
                             possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.BISHOP));
                             possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.KNIGHT));
-                        }
-                        else possibleMoves.add(new ChessMove(myPosition, pos, null));
+                        } else possibleMoves.add(new ChessMove(myPosition, pos, null));
                     }
                 }
-                else {
-                    // check in front
-                    if (board.getPiece(pos) == null) {
-                        if (canPromote(pos)) {
-                            possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.QUEEN));
-                            possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.ROOK));
-                            possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.BISHOP));
-                            possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.KNIGHT));
-                        }
-                        else possibleMoves.add(new ChessMove(myPosition, pos, null));
-                    }
-                    // then promotion helper?
+                else if (board.getPiece(pos) == null) {
+                    if (canPromote(pos)) {
+                        possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.QUEEN));
+                        possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.ROOK));
+                        possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.BISHOP));
+                        possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.KNIGHT));
+                    } else possibleMoves.add(new ChessMove(myPosition, pos, null));
                 }
             }
         }
@@ -74,17 +67,15 @@ public interface MoveCalculator {
 
     // helper function for bishops, rooks, and queens
     static void addInLine(List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor, int x, int y) {
-        // while is valid and empty, add and continue; if enemy, add to list then stop; if ally, stop
+        // while is valid and empty, add and continue; if enemy, add to list then stop; if an ally, stop
         ChessPosition pos = new ChessPosition(myPosition.getRow()+x, myPosition.getColumn()+y);
         while (pos.isValid()) {
             if (board.getPiece(pos) == null) {
                 possibleMoves.add(new ChessMove(myPosition, pos, null));
-            }
-            else if (board.getPiece(pos).getTeamColor() != myColor) {
+            } else if (board.getPiece(pos).getTeamColor() != myColor) {
                 possibleMoves.add(new ChessMove(myPosition, pos, null));
                 break;
-            }
-            else if (board.getPiece(pos).getTeamColor() == myColor) break;
+            } else if (board.getPiece(pos).getTeamColor() == myColor) break;
             pos = new ChessPosition(pos.getRow()+x, pos.getColumn()+y);
         }
     }
@@ -224,13 +215,9 @@ public interface MoveCalculator {
             ChessPiece prevSquare = board.getPiece(new ChessPosition(curr_row+advanceDirection, curr_col));
             if (piece.checkMoved(myPosition) && prevSquare == null) {
                 options.add(new ChessPosition(curr_row+advanceDirection*2, curr_col));
-                piece.markMoved();
             }
 
             pawnAddToList(options, possibleMoves, board, myPosition, myColor);
-
-            // for this move, check if promotion(not for skip jump)
-            // have promotion helper, need return 4 piece options
 
             return possibleMoves;
         }
