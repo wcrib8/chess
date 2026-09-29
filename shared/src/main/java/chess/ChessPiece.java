@@ -32,6 +32,8 @@ public class ChessPiece {
         PAWN
     }
 
+    // add a copy method???
+
     /**
      * @return Which team this chess piece belongs to
      */
