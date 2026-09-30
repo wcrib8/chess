@@ -42,8 +42,9 @@ public class ChessBoard {
         return board[position.getRow()-1][position.getColumn()-1];
     }
 
-    public void movePiece(ChessPosition position, ChessPiece piece) {
-
+    public void movePiece(ChessPosition previous_position, ChessPosition new_position, ChessPiece piece) {
+        addPiece(new_position, piece);
+        removePiece(previous_position);
     }
     /**
      * Sets the board to the default starting board
