@@ -1,5 +1,7 @@
 package chess;
 
+import chess.VariousPieceMoves.*;
+
 import java.util.List;
 import java.util.Collection;
 
@@ -22,7 +24,7 @@ public abstract class MoveCalculator {
     }
 
     // helper function for checking list of move options
-    void addToList(List<ChessPosition> moveOptions, List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor) {
+    public void addToList(List<ChessPosition> moveOptions, List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor) {
         for (ChessPosition pos : moveOptions) {
             if (pos.isValid()) {
                 if (board.getPiece(pos) == null) {
@@ -35,7 +37,7 @@ public abstract class MoveCalculator {
     }
 
     // pawn version of above func
-    void pawnAddToList(List<ChessPosition> moveOptions, List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor) {
+    public void pawnAddToList(List<ChessPosition> moveOptions, List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor) {
         for (ChessPosition pos : moveOptions) {
             if (pos.isValid()) {
                 if (pos.getColumn() != myPosition.getColumn()) {
@@ -62,13 +64,13 @@ public abstract class MoveCalculator {
     }
 
     // promotion helper
-    boolean canPromote(ChessPosition pos) {
+    public boolean canPromote(ChessPosition pos) {
         // check if white at 8 or black at 1
         return pos.getRow() == 8 || pos.getRow() == 1;
     }
 
     // helper function for bishops, rooks, and queens
-    void addInLine(List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor, int x, int y) {
+    public void addInLine(List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor, int x, int y) {
         // while is valid and empty, add and continue; if enemy, add to list then stop; if an ally, stop
         ChessPosition pos = new ChessPosition(myPosition.getRow()+x, myPosition.getColumn()+y);
         while (pos.isValid()) {

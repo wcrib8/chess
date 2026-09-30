@@ -22,6 +22,10 @@ public class ChessGame {
         this.board.resetBoard();
     }
 
+    public ChessBoard copyBoard() {
+        return board; // replace with copy functionality
+    }
+
     /**
      * @return Which team's turn it is
      */
@@ -60,6 +64,7 @@ public class ChessGame {
         Collection<ChessMove> moves = curr_piece.pieceMoves(board, startPosition);
         for (ChessMove move : moves) {
             // check each move if it will leave king in check
+            // make board copy, make move on copy, check if isincheck, add to collection if passes
         }
         return null;
     }
@@ -71,8 +76,11 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
-        // gonna need a remove piece method, maybe a movepiece method
+        ChessPosition start_position = move.getStartPosition();
+
+        //if (move == val_move for ChessMove val_move : validMoves(startPosition)) {
+
+        //}
 
         // tries to execute given move. if move illegal, throw exception
 
