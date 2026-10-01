@@ -79,17 +79,27 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition start_position = move.getStartPosition();
+        ChessPiece piece = board.getPiece(start_position);
 
-        //if (move == val_move for ChessMove val_move : validMoves(startPosition)) {
-
-        //}
-
-        // tries to execute given move. if move illegal, throw exception
-
-        // check if in valid moves, or if not team colors turn
-
-        // throw exception
+        // tries to execute given move: if in valid moves and team colors turn
+        for (ChessMove val_move : validMoves(start_position)) {
+            if (val_move.equals(move)) {
+                if (piece.getTeamColor() == currTeamTurn) {
+                    board.movePiece(move, piece);
+                    return;
+                }
+            }
+        }
+        // if move illegal, throw exception
+        throw new InvalidMoveException("Can't perform this move: " + move);
     }
+
+    // use when calling make move for try and catch:
+    // try {
+    //      makeMove(move);
+    // } catch (InvalidMoveException ex) {
+    //      System.out.println("Invalid Move - " + ex.getMessage());
+    // }
 
     /**
      * Determines if the given team is in check
