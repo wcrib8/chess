@@ -133,10 +133,10 @@ public class ChessGame {
 
         for (int row=0; row <= 7; row++) {
             for (int column=0; column <= 7; column++) {
-
                 // check if piece there, then check if enemy piece
                 ChessPosition check_spot = new ChessPosition(row, column);
                 ChessPiece enemyPiece = board.getPiece(check_spot);
+
                 if (enemyPiece != null) {
                     if (enemyPiece.getTeamColor() != teamColor) {
                         Collection<ChessMove> spot_moves = enemyPiece.pieceMoves(board, check_spot);
@@ -182,9 +182,23 @@ public class ChessGame {
     boolean noValidMovesLeft(TeamColor teamColor) {
         // check whole board, if no current team pieces have valid moves, return true
 
-        Collection<ChessMove> totalValidMoves = new ArrayList<>();
+        for (int row=0; row <= 7; row++) {
+            for (int column = 0; column <= 7; column++) {
+                ChessPosition check_spot = new ChessPosition(row, column);
+                ChessPiece allyPiece = board.getPiece(check_spot);
 
+                if (allyPiece != null) {
+                    if (allyPiece.getTeamColor() == teamColor) {
+                        Collection<ChessMove> spot_moves = allyPiece.pieceMoves(board, check_spot);
 
+                        // if it's not empty return false
+                        if (!spot_moves.isEmpty()) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
         return true;
     }
 
