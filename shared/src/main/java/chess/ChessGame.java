@@ -23,6 +23,8 @@ public class ChessGame {
         this.board.resetBoard();
     }
 
+    // have a global last move var for en passant....
+
     /**
      * @return Which team's turn it is
      */
@@ -101,6 +103,22 @@ public class ChessGame {
     //      System.out.println("Invalid Move - " + ex.getMessage());
     // }
 
+    ChessPosition findKing(ChessBoard board) {
+        for (int row=0; row <= 7; row++) {
+            for (int column=0; column <= 7; column++) {
+                ChessPosition check_spot = new ChessPosition(row, column);
+                ChessPiece spotPiece = board.getPiece(check_spot);
+                if (spotPiece == null) {
+                    continue;
+                }
+                if (spotPiece.getPieceType() == ChessPiece.PieceType.KING && spotPiece.getTeamColor() == currTeamTurn) {
+                    return check_spot;
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Determines if the given team is in check
      *
@@ -108,7 +126,34 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        // go through each piece on board, check if enemy team pieces can reach current teams king position:
+
+        // get kings position
+        ChessPosition currKingPosition = findKing(board);
+
+        for (int row=0; row <= 7; row++) {
+            for (int column=0; column <= 7; column++) {
+
+                // check if piece there, then check if enemy piece
+                ChessPosition check_spot = new ChessPosition(row, column);
+                ChessPiece enemyPiece = board.getPiece(check_spot);
+                if (enemyPiece != null) {
+                    if (enemyPiece.getTeamColor() != teamColor) {
+                        Collection<ChessMove> spot_moves = enemyPiece.pieceMoves(board, check_spot);
+
+                        // loop over each move, if end position is equal to kings position, return true
+                        for (ChessMove move : spot_moves) {
+                            if (move.getEndPosition() == currKingPosition) {
+                                return true;
+
+                                // do I need check for an ally piece blocking? should be automatic in piece moves
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -118,7 +163,8 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        // if in check and no valid moves, checkmate
+        return isInCheck(currTeamTurn) && noValidMovesLeft(teamColor);
     }
 
     /**
@@ -129,7 +175,17 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        // if not in check, and no valid moves, stalemate
+        return !isInCheck(currTeamTurn) && noValidMovesLeft(teamColor);
+    }
+
+    boolean noValidMovesLeft(TeamColor teamColor) {
+        // check whole board, if no current team pieces have valid moves, return true
+
+        Collection<ChessMove> totalValidMoves = new ArrayList<>();
+
+
+        return true;
     }
 
     /**
