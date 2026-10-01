@@ -14,8 +14,6 @@ public class ChessBoard {
     private ChessPiece[][] board = new ChessPiece[8][8];
     public ChessBoard() {}
 
-    // have a copy method? possibly useful for checking check/checkmate/stalemate
-
 
     /**
      * Adds a chess piece to the chessboard
@@ -42,9 +40,9 @@ public class ChessBoard {
         return board[position.getRow()-1][position.getColumn()-1];
     }
 
-    public void movePiece(ChessPosition previous_position, ChessPosition new_position, ChessPiece piece) {
-        addPiece(new_position, piece);
-        removePiece(previous_position);
+    public void movePiece(ChessMove move, ChessPiece piece) {
+        addPiece(move.getEndPosition(), piece);
+        removePiece(move.getStartPosition());
     }
     /**
      * Sets the board to the default starting board

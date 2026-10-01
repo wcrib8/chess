@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -20,10 +21,6 @@ public class ChessGame {
         this.currTeamTurn = TeamColor.WHITE;
         // endgameenforcer?
         this.board.resetBoard();
-    }
-
-    public ChessBoard copyBoard() {
-        return board; // replace with copy functionality
     }
 
     /**
@@ -60,13 +57,18 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece curr_piece = board.getPiece(startPosition);
         if (curr_piece == null) return null;
-        // valid if in piecemoves and doesnt leave king in check
+
         Collection<ChessMove> moves = curr_piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> valid_moves_list = new ArrayList<>();
+
+        // check each move if it will leave king in check
         for (ChessMove move : moves) {
-            // check each move if it will leave king in check
-            // make board copy, make move on copy, check if isincheck, add to collection if passes
+            // make board copy, make move on copy, check if is in check, add to collection if passes
+            ChessBoard temp_board = board;
+            temp_board.movePiece(move, curr_piece);
+            if (!isInCheck(currTeamTurn)) valid_moves_list.add(move);
         }
-        return null;
+        return valid_moves_list;
     }
 
     /**
