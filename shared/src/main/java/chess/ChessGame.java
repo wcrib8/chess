@@ -66,9 +66,15 @@ public class ChessGame {
         // check each move if it will leave king in check
         for (ChessMove move : moves) {
             // make board copy, make move on copy, check if is in check, add to collection if passes
-            ChessBoard temp_board = board;
-            temp_board.movePiece(move, curr_piece);
-            if (!isInCheck(currTeamTurn)) valid_moves_list.add(move);
+
+            // Arrays.copyOf(list,len)
+            // ChessBoard tempBoard = new ChessBoard(board);
+            // tempBoard.movePiece(move, curr_piece);
+
+            ChessGame tempGame = new ChessGame();
+            tempGame.board = new ChessBoard(board);
+            tempGame.board.movePiece(move, curr_piece);
+            if (!tempGame.isInCheck(curr_piece.getTeamColor())) valid_moves_list.add(move); // use temp_board in check???
         }
         return valid_moves_list;
     }
@@ -83,11 +89,17 @@ public class ChessGame {
         ChessPosition start_position = move.getStartPosition();
         ChessPiece piece = board.getPiece(start_position);
 
+        // check for trying to move a position with no piece
+        if (piece == null) throw new InvalidMoveException("Can't perform this move: " + move);
+
         // tries to execute given move: if in valid moves and team colors turn
         for (ChessMove val_move : validMoves(start_position)) {
             if (val_move.equals(move)) {
                 if (piece.getTeamColor() == currTeamTurn) {
                     board.movePiece(move, piece);
+                    if (currTeamTurn == TeamColor.WHITE) {
+                        currTeamTurn = TeamColor.BLACK;
+                    } else currTeamTurn = TeamColor.WHITE;
                     return;
                 }
             }
@@ -103,15 +115,15 @@ public class ChessGame {
     //      System.out.println("Invalid Move - " + ex.getMessage());
     // }
 
-    ChessPosition findKing(ChessBoard board) {
-        for (int row=0; row <= 7; row++) {
-            for (int column=0; column <= 7; column++) {
+    ChessPosition findKing(ChessBoard board, TeamColor teamColor) {
+        for (int row=1; row <= 8; row++) {
+            for (int column=1; column <= 8; column++) {
                 ChessPosition check_spot = new ChessPosition(row, column);
                 ChessPiece spotPiece = board.getPiece(check_spot);
                 if (spotPiece == null) {
                     continue;
                 }
-                if (spotPiece.getPieceType() == ChessPiece.PieceType.KING && spotPiece.getTeamColor() == currTeamTurn) {
+                if (spotPiece.getPieceType() == ChessPiece.PieceType.KING && spotPiece.getTeamColor() == teamColor) {
                     return check_spot;
                 }
             }
@@ -129,10 +141,10 @@ public class ChessGame {
         // go through each piece on board, check if enemy team pieces can reach current teams king position:
 
         // get kings position
-        ChessPosition currKingPosition = findKing(board);
+        ChessPosition currKingPosition = findKing(board, teamColor);
 
-        for (int row=0; row <= 7; row++) {
-            for (int column=0; column <= 7; column++) {
+        for (int row=1; row <= 8; row++) {
+            for (int column=1; column <= 8; column++) {
                 // check if piece there, then check if enemy piece
                 ChessPosition check_spot = new ChessPosition(row, column);
                 ChessPiece enemyPiece = board.getPiece(check_spot);
@@ -143,7 +155,7 @@ public class ChessGame {
 
                         // loop over each move, if end position is equal to kings position, return true
                         for (ChessMove move : spot_moves) {
-                            if (move.getEndPosition() == currKingPosition) {
+                            if (move.getEndPosition().equals(currKingPosition)) {
                                 return true;
 
                                 // do I need check for an ally piece blocking? should be automatic in piece moves
@@ -164,7 +176,7 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         // if in check and no valid moves, checkmate
-        return isInCheck(currTeamTurn) && noValidMovesLeft(teamColor);
+        return isInCheck(teamColor) && noValidMovesLeft(teamColor);
     }
 
     /**
@@ -176,20 +188,20 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         // if not in check, and no valid moves, stalemate
-        return !isInCheck(currTeamTurn) && noValidMovesLeft(teamColor);
+        return !isInCheck(teamColor) && noValidMovesLeft(teamColor);
     }
 
     boolean noValidMovesLeft(TeamColor teamColor) {
         // check whole board, if no current team pieces have valid moves, return true
 
-        for (int row=0; row <= 7; row++) {
-            for (int column = 0; column <= 7; column++) {
+        for (int row=1; row <= 8; row++) {
+            for (int column=1; column <= 8; column++) {
                 ChessPosition check_spot = new ChessPosition(row, column);
                 ChessPiece allyPiece = board.getPiece(check_spot);
 
                 if (allyPiece != null) {
                     if (allyPiece.getTeamColor() == teamColor) {
-                        Collection<ChessMove> spot_moves = allyPiece.pieceMoves(board, check_spot);
+                        Collection<ChessMove> spot_moves = validMoves(check_spot);
 
                         // if it's not empty return false
                         if (!spot_moves.isEmpty()) {

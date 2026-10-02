@@ -14,6 +14,16 @@ public class ChessBoard {
     private ChessPiece[][] board = new ChessPiece[8][8];
     public ChessBoard() {}
 
+    @SuppressWarnings("CopyConstructorMissesField")
+    public ChessBoard(ChessBoard other) {
+        for (int row=0; row <= 7; row++) {
+            for (int column = 0; column <= 7; column++) {
+                if (other.board[row][column] != null) {
+                    board[row][column] = new ChessPiece(other.board[row][column]);
+                }
+            }
+        }
+    }
 
     /**
      * Adds a chess piece to the chessboard
@@ -41,7 +51,12 @@ public class ChessBoard {
     }
 
     public void movePiece(ChessMove move, ChessPiece piece) {
-        addPiece(move.getEndPosition(), piece);
+        ChessPiece.PieceType promotePiece = move.getPromotionPiece();
+        if (promotePiece != null) {
+            addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), promotePiece));
+        } else {
+            addPiece(move.getEndPosition(), piece);
+        }
         removePiece(move.getStartPosition());
     }
     /**
