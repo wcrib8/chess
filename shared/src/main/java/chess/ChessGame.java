@@ -15,6 +15,7 @@ public class ChessGame {
     private ChessBoard board;
     private TeamColor currTeamTurn;
     // enforcer??
+    public ChessMove lastMove;
 
     public ChessGame() {
         this.board = new ChessBoard();
@@ -22,8 +23,6 @@ public class ChessGame {
         // endgameenforcer?
         this.board.resetBoard();
     }
-
-    // have a global last move var for en passant....
 
     /**
      * @return Which team's turn it is
@@ -67,14 +66,10 @@ public class ChessGame {
         for (ChessMove move : moves) {
             // make board copy, make move on copy, check if is in check, add to collection if passes
 
-            // Arrays.copyOf(list,len)
-            // ChessBoard tempBoard = new ChessBoard(board);
-            // tempBoard.movePiece(move, curr_piece);
-
             ChessGame tempGame = new ChessGame();
             tempGame.board = new ChessBoard(board);
             tempGame.board.movePiece(move, curr_piece);
-            if (!tempGame.isInCheck(curr_piece.getTeamColor())) valid_moves_list.add(move); // use temp_board in check???
+            if (!tempGame.isInCheck(curr_piece.getTeamColor())) valid_moves_list.add(move);
         }
         return valid_moves_list;
     }
@@ -97,6 +92,7 @@ public class ChessGame {
             if (val_move.equals(move)) {
                 if (piece.getTeamColor() == currTeamTurn) {
                     board.movePiece(move, piece);
+                    lastMove = move;
                     if (currTeamTurn == TeamColor.WHITE) {
                         currTeamTurn = TeamColor.BLACK;
                     } else currTeamTurn = TeamColor.WHITE;
@@ -157,8 +153,6 @@ public class ChessGame {
                         for (ChessMove move : spot_moves) {
                             if (move.getEndPosition().equals(currKingPosition)) {
                                 return true;
-
-                                // do I need check for an ally piece blocking? should be automatic in piece moves
                             }
                         }
                     }
