@@ -57,7 +57,9 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece currentPiece = board.getPiece(startPosition);
-        if (currentPiece == null) return null;
+        if (currentPiece == null) {
+            return null;
+        }
 
         Collection<ChessMove> moves = currentPiece.pieceMoves(board, startPosition);
         Collection<ChessMove> validMovesList = new ArrayList<>();
@@ -69,7 +71,9 @@ public class ChessGame {
             ChessGame tempGame = new ChessGame();
             tempGame.board = new ChessBoard(board);
             tempGame.board.movePiece(move, currentPiece);
-            if (!tempGame.isInCheck(currentPiece.getTeamColor())) validMovesList.add(move);
+            if (!tempGame.isInCheck(currentPiece.getTeamColor())) {
+                validMovesList.add(move);
+            }
         }
         return validMovesList;
     }
@@ -85,7 +89,9 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
 
         // check for trying to move a position with no piece
-        if (piece == null) throw new InvalidMoveException("Can't perform this move: " + move);
+        if (piece == null) {
+            throw new InvalidMoveException("Can't perform this move: " + move);
+        }
 
         // tries to execute given move: if in valid moves and team colors turn
         for (ChessMove validMove : validMoves(startPosition)) {
@@ -95,7 +101,9 @@ public class ChessGame {
                     lastMove = move;
                     if (currentTeamTurn == TeamColor.WHITE) {
                         currentTeamTurn = TeamColor.BLACK;
-                    } else currentTeamTurn = TeamColor.WHITE;
+                    } else {
+                        currentTeamTurn = TeamColor.WHITE;
+                    }
                     return;
                 }
             }
