@@ -1,6 +1,6 @@
 package chess;
 
-import chess.VariousPieceMoves.*;
+import chess.piecemoves.*;
 
 import java.util.List;
 import java.util.Collection;

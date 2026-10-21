@@ -1,6 +1,6 @@
 package dataaccess;
 
-import model.UserData;
+import chess.shared.src.main.java.model.UserData;
 import model.AuthData;
 import java.util.HashMap;
 

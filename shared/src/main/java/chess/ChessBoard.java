@@ -107,13 +107,16 @@ public class ChessBoard {
     @Override
     public String toString() {
         //return "board=" + Arrays.toString(board);
-        String boardSpots = "";
+        StringBuilder boardSpots = new StringBuilder();
         for (int r=0; r < 8; r++) {
             for (int c=0; c < 8; c++) {
-                if (board[r][c] == null) boardSpots += "empty";
-                else boardSpots += board[r][c].toString();
+                if (board[r][c] == null) {
+                    boardSpots.append("empty");
+                } else {
+                    boardSpots.append(board[r][c].toString());
+                }
             }
         }
-        return boardSpots;
+        return boardSpots.toString();
     }
 }

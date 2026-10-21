@@ -1,7 +1,6 @@
-package chess.VariousPieceMoves;
+package chess.piecemoves;
 
 import chess.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,20 +12,20 @@ public class KingMove extends MoveCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         // check all options
-        int curr_row = myPosition.getRow();
-        int curr_col = myPosition.getColumn();
+        int currentRow = myPosition.getRow();
+        int currentColumn = myPosition.getColumn();
         ChessGame.TeamColor myColor = piece.getTeamColor();
 
         // add move options
         List<ChessPosition> options = Arrays.asList(
-                new ChessPosition(curr_row+1, curr_col),
-                new ChessPosition(curr_row+1, curr_col+1),
-                new ChessPosition(curr_row, curr_col+1),
-                new ChessPosition(curr_row-1, curr_col+1),
-                new ChessPosition(curr_row-1, curr_col),
-                new ChessPosition(curr_row-1, curr_col-1),
-                new ChessPosition(curr_row, curr_col-1),
-                new ChessPosition(curr_row+1, curr_col-1)
+                new ChessPosition(currentRow +1, currentColumn),
+                new ChessPosition(currentRow +1, currentColumn +1),
+                new ChessPosition(currentRow, currentColumn +1),
+                new ChessPosition(currentRow -1, currentColumn +1),
+                new ChessPosition(currentRow -1, currentColumn),
+                new ChessPosition(currentRow -1, currentColumn -1),
+                new ChessPosition(currentRow, currentColumn -1),
+                new ChessPosition(currentRow +1, currentColumn -1)
         );
 
         // check if ally or end of board, otherwise add

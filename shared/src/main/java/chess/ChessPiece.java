@@ -54,7 +54,7 @@ public class ChessPiece {
         return type;
     }
 
-    public boolean checkMoved(ChessPosition myPosition) {
+    public boolean checkIfMoved(ChessPosition myPosition) {
         if (pieceColor == ChessGame.TeamColor.WHITE) {
             if (myPosition.getRow() != 2) {
                 hasNotMoved = false;
@@ -73,8 +73,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPiece piece = board.getPiece(myPosition);
-        return MoveCalculator.getMoves(board, myPosition, piece);
+        return MoveCalculator.getMoves(board, myPosition, board.getPiece(myPosition));
     }
 
     @Override

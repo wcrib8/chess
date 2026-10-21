@@ -1,11 +1,11 @@
-package chess.VariousPieceMoves;
+package chess.piecemoves;
 
 import chess.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class QueenMove extends MoveCalculator {
+public class RookMove extends MoveCalculator {
 
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
@@ -18,10 +18,6 @@ public class QueenMove extends MoveCalculator {
         addInLine(possibleMoves, board, myPosition, myColor, -1, 0);
         addInLine(possibleMoves, board, myPosition, myColor, 0, 1);
         addInLine(possibleMoves, board, myPosition, myColor, 0, -1);
-        addInLine(possibleMoves, board, myPosition, myColor, 1, 1);
-        addInLine(possibleMoves, board, myPosition, myColor, 1, -1);
-        addInLine(possibleMoves, board, myPosition, myColor, -1, 1);
-        addInLine(possibleMoves, board, myPosition, myColor, -1, -1);
 
         return possibleMoves;
     }
