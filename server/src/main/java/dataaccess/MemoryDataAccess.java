@@ -1,56 +1,53 @@
 package dataaccess;
 
-import chess.shared.src.main.java.model.UserData;
-import model.AuthData;
+import model.*;
 import java.util.HashMap;
+import java.util.List;
 
-public class MemoryDataAccess {
+public class MemoryDataAccess implements DataAccess {
     private HashMap<String, UserData> users = new HashMap<>();
 
-
+    public MemoryDataAccess() {}
     // void insertUser(UserData u) throws DataAccessException
     // from masteryLS for reference
 
-    @Override
     public void clear() {
 
     }
 
-    @Override
-    public void createUser(UserData userData, AuthData authData) {
+    public void createUser(UserData userData) {
         users.put(userData.username(), userData);
     }
 
-    @Override
-    public void getUser(String username) {
+    public String getUser(String username) {
+        return "";
+    }
+
+    public void createGame(AuthData authData, GameData gameData) {
 
     }
 
-    public void createGame(String username) {
+    public void getGame(AuthData authData, GameData gameData) {
 
     }
 
-    public void getGame(String username) {
+    public List<GameData> listGames(AuthData authData) {
+        return null;
+    }
+
+    public void updateGame(AuthData authData, GameData gameData) {
 
     }
 
-    public void listGames(String username) {
+    public void createAuth(UserData userData) {
 
     }
 
-    public void updateGame(String username) {
+    public void getAuth(AuthData authData) {
 
     }
 
-    public void createAuth(String username) {
-
-    }
-
-    public void getAuth(String username) {
-
-    }
-
-    public void deleteAuth(String username) {
+    public void deleteAuth(AuthData authData) {
 
     }
 
