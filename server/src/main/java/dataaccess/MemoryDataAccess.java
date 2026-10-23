@@ -6,6 +6,7 @@ import java.util.List;
 
 public class MemoryDataAccess implements DataAccess {
     private HashMap<String, UserData> users = new HashMap<>();
+    private HashMap<String, AuthData> authorized = new HashMap<>();
 
     public MemoryDataAccess() {}
     // void insertUser(UserData u) throws DataAccessException
@@ -19,8 +20,8 @@ public class MemoryDataAccess implements DataAccess {
         users.put(userData.username(), userData);
     }
 
-    public String getUser(String username) {
-        return "";
+    public UserData getUser(String username) {
+        return users.get(username);
     }
 
     public void createGame(AuthData authData, GameData gameData) {
@@ -39,8 +40,8 @@ public class MemoryDataAccess implements DataAccess {
 
     }
 
-    public void createAuth(UserData userData) {
-
+    public void createAuth(AuthData authData) {
+        authorized.put(authData.username(), authData);
     }
 
     public void getAuth(AuthData authData) {

@@ -1,15 +1,16 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.exceptions.AlreadyTakenException;
 import io.javalin.*;
 import io.javalin.http.Context;
-import org.jetbrains.annotations.NotNull;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import dataaccess.MemoryDataAccess;
 import handlers.*;
 import service.*;
+import service.exceptions.UnauthorizedException;
 import service.requests.*;
 import service.responses.*;
 
@@ -48,54 +49,80 @@ public class Server {
 
     // server handler classes?
 
-    private void register(Context ctx) {
+    private void register(Context ctx) throws Exception {
         try {
             RegisterRequest request = new Gson().fromJson(ctx.body(), RegisterRequest.class);
-            //        if (request == null) {
-            //            throw new RuntimeException("missing required body");
-            //        }
+            if (request.username() == null || request.password() == null || request.email() == null) {
+                ctx.status(400);
+                ctx.result(new Gson().toJson(Map.of("message", "Error: bad request")));
+                return;
+            }
             RegisterResult result = userService.register(request);
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
-        } catch (Exception error) {
-            ctx.status(400);
-            ctx.json(Map.of("error", error.getMessage()));
-            // use my exception handler method instead?
+        } catch (AlreadyTakenException error) {
+            ctx.status(403);
+            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
         }
-        // or return new Gson().toJson(result);  ???
-
-        // var result = Map.of("username", "", "authToken","");
-        // ctx.result(new Gson().toJson(result));
     }
 
     private void login(Context ctx) {
-
+        try {
+            LoginRequest request = new Gson().fromJson(ctx.body(), LoginRequest.class);
+            if (request.username() == null || request.password() == null) {
+                ctx.status(400);
+                ctx.result(new Gson().toJson(Map.of("message", "Error: bad request")));
+                return;
+            }
+            LoginResult result = userService.login(request);
+            ctx.status(200);
+            ctx.result(new Gson().toJson(result));
+        } catch (UnauthorizedException error) {
+            ctx.status(401);
+            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
+        }
     }
 
     private void logout(Context ctx) {
+        try {
 
-        if (authorized(ctx)){
+            if (authorized(ctx)){
+
+            }
+        } catch (Exception error) {
 
         }
     }
 
     private void listGames(Context ctx) {
+        try {
 
-        if (authorized(ctx)){
+            if (authorized(ctx)){
+
+            }
+        } catch (Exception error) {
 
         }
     }
 
     private void createGame(Context ctx) {
+        try {
 
-        if (authorized(ctx)){
+            if (authorized(ctx)){
+
+            }
+        } catch (Exception error) {
 
         }
     }
 
     private void joinGame(Context ctx) {
+        try {
 
-        if (authorized(ctx)){
+            if (authorized(ctx)){
+
+            }
+        } catch (Exception error) {
 
         }
     }
@@ -124,15 +151,10 @@ public class Server {
         javalin.stop();
     }
 
-    private void throwBadRequestException(Context ctx) {
-        throw new RuntimeException("The server is on fire!");
-        //throw new BadRequestException("bad request");
-    }
-
     private void exceptionHandler(Exception e, Context ctx) {
-        var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage()), "success", false));
+        var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage())));
         ctx.status(500);
-        ctx.json(body);
+        ctx.result(body);
     }
 
     private void notFound(Context ctx) {

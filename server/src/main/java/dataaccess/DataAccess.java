@@ -11,7 +11,7 @@ public interface DataAccess {
 
     void createUser(UserData userData);
 
-    String getUser(String username);
+    UserData getUser(String username);
 
     void createGame(AuthData authData, GameData gameData);
 
@@ -21,7 +21,7 @@ public interface DataAccess {
 
     void updateGame(AuthData authData, GameData gameData);
 
-    void createAuth(UserData userData);
+    void createAuth(AuthData authData);
 
     void getAuth(AuthData authData);
 
