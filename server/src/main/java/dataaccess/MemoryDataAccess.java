@@ -54,7 +54,7 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     public void deleteAuth(AuthData authData) {
-
+        authorized.remove(authData.username());
     }
 
     // more methods?gf

@@ -48,7 +48,8 @@ public class Service {
     }
 
     public void logout(LogoutRequest logoutRequest) {
-
+        var authData = dataAccess.getAuth(logoutRequest.username());
+        dataAccess.deleteAuth(authData);
     }
 
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) {

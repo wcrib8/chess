@@ -71,14 +71,13 @@ public class Server {
     }
 
     private void logout(Context ctx) {
-        try {
-
-            if (authorized(ctx)){
-
-            }
-        } catch (Exception error) {
-
+        if (!authorized(ctx)){
+            return;
         }
+        LogoutRequest request = new Gson().fromJson(ctx.body(), LogoutRequest.class);
+        service.logout(request);
+        ctx.status(200);
+        ctx.result("{}");
     }
 
     private void listGames(Context ctx) {
