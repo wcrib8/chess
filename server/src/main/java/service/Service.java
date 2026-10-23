@@ -9,11 +9,11 @@ import service.responses.*;
 
 import java.util.UUID;
 
-public class UserService {
+public class Service {
 
     private final DataAccess dataAccess;
 
-    public UserService(DataAccess dataAccess) {
+    public Service(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
 
@@ -34,15 +34,35 @@ public class UserService {
 
     public LoginResult login(LoginRequest loginRequest) throws UnauthorizedException {
         // if no user with this info, send error
-        if (dataAccess.getUser(loginRequest.username()) == null) {
+        UserData user = dataAccess.getUser(loginRequest.username());
+        if (user == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
-        return null;
+        // check user has authorization
+        if (dataAccess.getAuth(user.username()) == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+
+        return new LoginResult(loginRequest.username(), dataAccess.getAuth(user.username()).authToken());
     }
 
     public void logout(LogoutRequest logoutRequest) {
 
+    }
+
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) {
+        return null;
+    }
+
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) {
+        return null;
+    }
+
+    public void joinGame(JoinGameRequest joinGameRequest) {}
+
+    public void clear() {
+        dataAccess.clear();
     }
 
     public static String generateToken() {

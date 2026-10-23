@@ -23,7 +23,7 @@ public interface DataAccess {
 
     void createAuth(AuthData authData);
 
-    void getAuth(AuthData authData);
+    AuthData getAuth(String username);
 
     void deleteAuth(AuthData authData);
 }

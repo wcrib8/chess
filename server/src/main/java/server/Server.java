@@ -1,26 +1,22 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import dataaccess.MemoryDataAccess;
-import handlers.*;
 import service.*;
-import service.exceptions.UnauthorizedException;
+import service.exceptions.*;
 import service.requests.*;
 import service.responses.*;
 
 public class Server {
 
     private final Javalin javalin;
-    UserHandler userHandler = new UserHandler();
-    GameHandler gameHandler = new GameHandler();
-    private final UserService userService = new UserService(new MemoryDataAccess());
-    GameService gameService = new GameService();
+    private final Service service = new Service(new MemoryDataAccess());
     final private HashSet<String> validTokens = new HashSet<>(Set.of("secret1", "secret2"));
 
     public Server() {
@@ -37,19 +33,10 @@ public class Server {
                 .error(404, this::notFound);
     }
 
-    //        var serializer = new Gson();
-//        var game = new ChessGame();
-//        // serialize to JSON
-//        var json = serializer.toJson(game);
-//        // deserialize back to ChessGame
-//        game = serializer.fromJson(json, ChessGame.class);
 
-    // example from masteryls, implement here in server??
-    // include converting thrown exception types into the appropriate HTTP status codes if necessary
+    // endpoint handler methods
 
-    // server handler classes?
-
-    private void register(Context ctx) throws Exception {
+    private void register(Context ctx) throws AlreadyTakenException {
         try {
             RegisterRequest request = new Gson().fromJson(ctx.body(), RegisterRequest.class);
             if (request.username() == null || request.password() == null || request.email() == null) {
@@ -57,7 +44,7 @@ public class Server {
                 ctx.result(new Gson().toJson(Map.of("message", "Error: bad request")));
                 return;
             }
-            RegisterResult result = userService.register(request);
+            RegisterResult result = service.register(request);
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
         } catch (AlreadyTakenException error) {
@@ -66,7 +53,7 @@ public class Server {
         }
     }
 
-    private void login(Context ctx) {
+    private void login(Context ctx) throws UnauthorizedException {
         try {
             LoginRequest request = new Gson().fromJson(ctx.body(), LoginRequest.class);
             if (request.username() == null || request.password() == null) {
@@ -74,7 +61,7 @@ public class Server {
                 ctx.result(new Gson().toJson(Map.of("message", "Error: bad request")));
                 return;
             }
-            LoginResult result = userService.login(request);
+            LoginResult result = service.login(request);
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
         } catch (UnauthorizedException error) {
@@ -128,7 +115,11 @@ public class Server {
     }
 
     private void clear(Context ctx) {
-        ctx.result("{}");
+        if (authorized(ctx)) {
+            service.clear();
+            ctx.status(200);
+            ctx.result("{}");
+        }
     }
 
     private boolean authorized(Context ctx) {
