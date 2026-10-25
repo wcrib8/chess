@@ -29,6 +29,10 @@ public class MemoryDataAccess implements DataAccess {
         return users.get(username);
     }
 
+    public int numUsers() {
+        return users.size();
+    }
+
     public void createGame(AuthData authData, GameData gameData) {
 
     }
@@ -54,7 +58,7 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     public void deleteAuth(AuthData authData) {
-        authorized.remove(authData.username());
+        authorized.remove(authData.username()   );
     }
 
     // more methods?gf

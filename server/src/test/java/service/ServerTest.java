@@ -8,32 +8,27 @@ import model.*;
 import service.requests.RegisterRequest;
 import dataaccess.exceptions.*;
 //import server.exceptions.*;
-import service.exceptions.*;
+
 
 class ServerTest {
     private static Service service;
-    private static MemoryDataAccess MemoryDataAccess;
+    private static MemoryDataAccess memoryDataAccess;
 
     // instantiate objects for tests
 
     @BeforeEach
     public void setup() {
-        MemoryDataAccess = new MemoryDataAccess();
-        service = new Service(MemoryDataAccess);
+        memoryDataAccess = new MemoryDataAccess();
+        service = new Service(memoryDataAccess);
     }
 
     // clear tests
 
     @Test
-    public void clearReturnsEmptyDatabase() {
-
-    }
-
-    @Test
     public void clearRemovesUser() {
-        var John = new RegisterRequest("John", "johniscool", "john@john.com");
-        service.register(John);
-        //assert
+        registerUserSuccessful();
+        service.clear();
+        assertEquals(0, memoryDataAccess.numUsers());
     }
 
     // register tests
@@ -43,7 +38,7 @@ class ServerTest {
         var jojo = new RegisterRequest("Jojo", "jojoiscool", "jojo@jojo.com");
         service.register(jojo);
         var jojoUserData = new UserData("Jojo", "jojoiscool", "jojo@jojo.com");
-        assertEquals(jojoUserData, MemoryDataAccess.getUser("Jojo"));
+        assertEquals(jojoUserData, memoryDataAccess.getUser("Jojo"));
     }
 
     @Test
@@ -51,7 +46,7 @@ class ServerTest {
         var jojoNoName = new RegisterRequest("", "jojoiscool", "jojo@jojo.com");
         service.register(jojoNoName);
         var jojoNoNameUserData = new UserData("", "jojoiscool", "jojo@jojo.com");
-        assertNotEquals(jojoNoNameUserData, MemoryDataAccess.getUser("Jojo"));
+        assertNotEquals(jojoNoNameUserData, memoryDataAccess.getUser("Jojo"));
     }
 
     @Test
@@ -67,7 +62,7 @@ class ServerTest {
     public void registerUserCreatesAuthData() {
         var jojo = new RegisterRequest("Jojo", "jojoiscool", "jojo@jojo.com");
         service.register(jojo);
-        assertNotNull(MemoryDataAccess.getAuth("Jojo"));
+        assertNotNull(memoryDataAccess.getAuth("Jojo"));
     }
 
     // login tests
