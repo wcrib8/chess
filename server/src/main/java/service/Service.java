@@ -39,7 +39,7 @@ public class Service {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
-        // check user has authorization
+        // check user has authorization, need to create new auth?? and logout deletes auth??
         if (dataAccess.getAuth(user.username()) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
@@ -58,6 +58,8 @@ public class Service {
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) {
         return null;
+
+        // should also check if game already in db
     }
 
     public void joinGame(JoinGameRequest joinGameRequest) {}
