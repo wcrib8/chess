@@ -72,6 +72,8 @@ public class Server {
 
     private void logout(Context ctx) {
         if (!authorized(ctx)){
+            ctx.status(200);
+            ctx.result("{}");
             return;
         }
         LogoutRequest request = new Gson().fromJson(ctx.body(), LogoutRequest.class);
@@ -82,9 +84,10 @@ public class Server {
 
     private void listGames(Context ctx) {
         try {
-
             if (authorized(ctx)){
-
+                ListGamesResult result = service.listGames();
+                ctx.status(200);
+                ctx.result(new Gson().toJson(result));
             }
         } catch (Exception error) {
 
@@ -114,15 +117,19 @@ public class Server {
     }
 
     private void clear(Context ctx) {
-        if (authorized(ctx)) {
-            service.clear();
-            ctx.status(200);
-            ctx.result("{}");
-        }
+        service.clear();
+        ctx.status(200);
+        ctx.result("{}");
     }
 
     private boolean authorized(Context ctx) {
         String authToken = ctx.header("authorization");
+
+        // get user auth data, check if auth token inside matches
+
+        // ? how to access auth, need username?
+        // login prob
+
         if (!validTokens.contains(authToken)) {
             ctx.contentType("application/json");
             ctx.status(401);

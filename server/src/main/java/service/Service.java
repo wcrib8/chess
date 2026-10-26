@@ -39,6 +39,11 @@ public class Service {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
+        // check username and password matches
+        if (!loginRequest.username().equals(user.username()) | !loginRequest.password().equals(user.password())) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+
         // check user has authorization, need to create new auth?? and logout deletes auth??
         if (dataAccess.getAuth(user.username()) == null) {
             throw new UnauthorizedException("Error: unauthorized");
@@ -52,8 +57,8 @@ public class Service {
         dataAccess.deleteAuth(authData);
     }
 
-    public ListGamesResult listGames(ListGamesRequest listGamesRequest) {
-        return null;
+    public ListGamesResult listGames() {
+        return new ListGamesResult(dataAccess.listGames());
     }
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) {

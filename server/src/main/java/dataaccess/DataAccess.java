@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface DataAccess {
@@ -13,13 +14,13 @@ public interface DataAccess {
 
     UserData getUser(String username);
 
-    void createGame(AuthData authData, GameData gameData);
+    void createGame(GameData gameData);
 
-    void getGame(AuthData authData, GameData gameData);
+    void getGame(GameData gameData);
 
-    List<GameData> listGames(AuthData authData);
+    ArrayList<GameData> listGames();
 
-    void updateGame(AuthData authData, GameData gameData);
+    void updateGame(GameData gameData);
 
     void createAuth(AuthData authData);
 

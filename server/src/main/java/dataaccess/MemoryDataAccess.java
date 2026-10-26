@@ -9,7 +9,7 @@ import java.util.List;
 public class MemoryDataAccess implements DataAccess {
     private HashMap<String, UserData> users = new HashMap<>();
     private HashMap<String, AuthData> authorized = new HashMap<>();
-    private ArrayList<HashMap<String, String>> games = new ArrayList<>();
+    private ArrayList<GameData> games = new ArrayList<>();
 
     public MemoryDataAccess() {}
     // void insertUser(UserData u) throws DataAccessException
@@ -33,19 +33,19 @@ public class MemoryDataAccess implements DataAccess {
         return users.size();
     }
 
-    public void createGame(AuthData authData, GameData gameData) {
+    public void createGame(GameData gameData) {
 
     }
 
-    public void getGame(AuthData authData, GameData gameData) {
+    public void getGame(GameData gameData) {
 
     }
 
-    public List<GameData> listGames(AuthData authData) {
-        return null;
+    public ArrayList<GameData> listGames() {
+        return games;
     }
 
-    public void updateGame(AuthData authData, GameData gameData) {
+    public void updateGame(GameData gameData) {
 
     }
 
@@ -53,8 +53,8 @@ public class MemoryDataAccess implements DataAccess {
         authorized.put(authData.username(), authData);
     }
 
-    public AuthData getAuth(String username) {
-        return authorized.get(username);
+    public AuthData getAuth(String authToken) {
+        return authorized.get(authToken);
     }
 
     public void deleteAuth(AuthData authData) {
