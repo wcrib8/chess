@@ -121,7 +121,8 @@ public class Server {
         try {
 
             if (hasAuthHeader(ctx)){
-
+                JoinGameRequest parseColorAndID = new Gson().fromJson(ctx.body(), JoinGameRequest.class);
+                JoinGameRequest request = new JoinGameRequest(ctx.header("Authorization"), parseColorAndID.playerColor(), parseColorAndID.gameID());
             }
         } catch (Exception error) {
             ctx.status(401);
