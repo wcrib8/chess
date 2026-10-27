@@ -50,10 +50,15 @@ public class MemoryDataAccess implements DataAccess {
         return games;
     }
 
-    public void updateGame(int gameID, GameData gameData) {
+    public void updateGame(GameData gameData, String playerColor, String username) {
         for (GameData game : games) {
-            if (game.gameID() == gameID) {
-                game = gameData;
+            if (game.gameID() == gameData.gameID()) {
+                if (playerColor.equals("WHITE")) {
+                    games.add(new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game()));
+                } else {
+                    games.add(new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game()));
+                }
+                games.remove(game);
                 return;
             }
         }

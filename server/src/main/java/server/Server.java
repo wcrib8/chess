@@ -48,8 +48,7 @@ public class Server {
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
         } catch (AlreadyTakenException error) {
-            ctx.status(403);
-            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
+            exceptionResult(ctx, error, 403);
         }
     }
 
@@ -65,8 +64,7 @@ public class Server {
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
         } catch (UnauthorizedException error) {
-            ctx.status(401);
-            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
+            exceptionResult(ctx, error, 401);
         }
     }
 
@@ -80,8 +78,7 @@ public class Server {
                 ctx.result("{}");
             }
         } catch (UnauthorizedException error) {
-            ctx.status(401);
-            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
+            exceptionResult(ctx, error, 401);
         }
     }
 
@@ -94,8 +91,7 @@ public class Server {
                 ctx.result(new Gson().toJson(result));
             }
         } catch (UnauthorizedException error) {
-            ctx.status(401);
-            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
+            exceptionResult(ctx, error, 401);
         }
     }
 
@@ -109,24 +105,28 @@ public class Server {
                 ctx.result(new Gson().toJson(result));
             }
         } catch (BadRequestException error) {
-            ctx.status(400);
-            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
+            exceptionResult(ctx, error, 400);
         } catch (UnauthorizedException error) {
-            ctx.status(401);
-            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
+            exceptionResult(ctx, error, 401);
         }
     }
 
     private void joinGame(Context ctx) {
         try {
 
-            if (hasAuthHeader(ctx)){
+            if (hasAuthHeader(ctx)) {
                 JoinGameRequest parseColorAndID = new Gson().fromJson(ctx.body(), JoinGameRequest.class);
                 JoinGameRequest request = new JoinGameRequest(ctx.header("Authorization"), parseColorAndID.playerColor(), parseColorAndID.gameID());
+                service.joinGame(request);
+                ctx.status(200);
+                ctx.result("{}");
             }
-        } catch (Exception error) {
-            ctx.status(401);
-            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
+        } catch (BadRequestException error) {
+            exceptionResult(ctx, error, 400);
+        } catch (UnauthorizedException error) {
+            exceptionResult(ctx, error, 401);
+        } catch (AlreadyTakenException error) {
+            exceptionResult(ctx, error, 403);
         }
     }
 
@@ -134,6 +134,11 @@ public class Server {
         service.clear();
         ctx.status(200);
         ctx.result("{}");
+    }
+
+    private static void exceptionResult(Context ctx, Exception error, int status) {
+        ctx.status(status);
+        ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
     }
 
     private boolean hasAuthHeader(Context ctx) {

@@ -82,11 +82,30 @@ public class Service {
             return new CreateGameResult(gameIndex);
         }
         return null;
-
-        // should also check if game already in db
     }
 
-    public void joinGame(JoinGameRequest request) throws UnauthorizedException {}
+    public void joinGame(JoinGameRequest request) throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+        if (authorized(request.authToken())) {
+            var game = dataAccess.getGame(request.gameID());
+
+            // check game exists, then check playerColor is white or black
+            String color = request.playerColor();
+            if (game == null || color == null || color.isEmpty() || (!color.equals("WHITE") && !color.equals("BLACK"))) {
+                throw new BadRequestException("Error: bad request");
+            }
+
+            // add to game, throw if that color is already taken
+            if (color.equals("WHITE")) {
+                if (game.whiteUsername() != null) {
+                    throw new AlreadyTakenException("Error: already taken");
+                }
+            } else if (game.blackUsername() != null) {
+                throw new AlreadyTakenException("Error: already taken");
+            }
+
+            dataAccess.updateGame(game, color, dataAccess.getAuth(request.authToken()).username());
+        }
+    }
 
     public void clear() {
         dataAccess.clear();
