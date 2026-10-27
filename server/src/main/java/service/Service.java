@@ -14,7 +14,7 @@ import java.util.UUID;
 public class Service {
 
     private final DataAccess dataAccess;
-    private int gameIndex = 1;
+    private int gameIndex = 0;
 
     public Service(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
