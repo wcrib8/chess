@@ -24,7 +24,9 @@ public abstract class MoveCalculator {
     }
 
     // helper function for checking list of move options
-    public void addToList(List<ChessPosition> moveOptions, List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor) {
+    public void addToList(
+            List<ChessPosition> moveOptions, List<ChessMove> possibleMoves,
+            ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor) {
         for (ChessPosition pos : moveOptions) {
             if (pos.isValid()) {
                 if (board.getPiece(pos) == null) {
@@ -37,7 +39,9 @@ public abstract class MoveCalculator {
     }
 
     // pawn version of above func
-    public void pawnAddToList(List<ChessPosition> moveOptions, List<ChessMove> possibleMoves, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor) {
+    public void pawnAddToList(
+            List<ChessPosition> moveOptions, List<ChessMove> possibleMoves,
+            ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor) {
         for (ChessPosition pos : moveOptions) {
             if (pos.isValid()) {
                 if (pos.getColumn() != myPosition.getColumn()) {
@@ -45,27 +49,24 @@ public abstract class MoveCalculator {
                         continue;
                     }
                     if (board.getPiece(pos).getTeamColor() != myColor) {
-                        if (canPromote(pos)) {
-                            possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.QUEEN));
-                            possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.ROOK));
-                            possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.BISHOP));
-                            possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.KNIGHT));
-                        } else {
-                            possibleMoves.add(new ChessMove(myPosition, pos, null));
-                        }
+                        addPawnMoves(possibleMoves, myPosition, pos);
                     }
                 }
                 else if (board.getPiece(pos) == null) {
-                    if (canPromote(pos)) {
-                        possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.QUEEN));
-                        possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.ROOK));
-                        possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.BISHOP));
-                        possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.KNIGHT));
-                    } else {
-                        possibleMoves.add(new ChessMove(myPosition, pos, null));
-                    }
+                    addPawnMoves(possibleMoves, myPosition, pos);
                 }
             }
+        }
+    }
+
+    private void addPawnMoves(List<ChessMove> possibleMoves, ChessPosition myPosition, ChessPosition pos) {
+        if (canPromote(pos)) {
+            possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.QUEEN));
+            possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.ROOK));
+            possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.BISHOP));
+            possibleMoves.add(new ChessMove(myPosition, pos, ChessPiece.PieceType.KNIGHT));
+        } else {
+            possibleMoves.add(new ChessMove(myPosition, pos, null));
         }
     }
 

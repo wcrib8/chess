@@ -14,7 +14,6 @@ public class ChessGame {
 
     private ChessBoard board;
     private TeamColor currentTeamTurn;
-    // enforcer??
     public ChessMove lastMove;
 
     public ChessGame() {
@@ -153,16 +152,23 @@ public class ChessGame {
                 ChessPosition checkSpot = new ChessPosition(row, column);
                 ChessPiece enemyPiece = board.getPiece(checkSpot);
 
-                if (enemyPiece != null) {
-                    if (enemyPiece.getTeamColor() != teamColor) {
-                        Collection<ChessMove> spotMoves = enemyPiece.pieceMoves(board, checkSpot);
+                if (ifKing(teamColor, enemyPiece, checkSpot, currentKingPosition)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-                        // loop over each move, if end position is equal to kings position, return true
-                        for (ChessMove move : spotMoves) {
-                            if (move.getEndPosition().equals(currentKingPosition)) {
-                                return true;
-                            }
-                        }
+    private boolean ifKing(TeamColor teamColor, ChessPiece enemyPiece, ChessPosition checkSpot, ChessPosition currentKingPosition) {
+        if (enemyPiece != null) {
+            if (enemyPiece.getTeamColor() != teamColor) {
+                Collection<ChessMove> spotMoves = enemyPiece.pieceMoves(board, checkSpot);
+
+                // loop over each move, if end position is equal to kings position, return true
+                for (ChessMove move : spotMoves) {
+                    if (move.getEndPosition().equals(currentKingPosition)) {
+                        return true;
                     }
                 }
             }
@@ -201,19 +207,24 @@ public class ChessGame {
                 ChessPosition checkSpot = new ChessPosition(row, column);
                 ChessPiece allyPiece = board.getPiece(checkSpot);
 
-                if (allyPiece != null) {
-                    if (allyPiece.getTeamColor() == teamColor) {
-                        Collection<ChessMove> spotMoves = validMoves(checkSpot);
-
-                        // if it's not empty return false
-                        if (!spotMoves.isEmpty()) {
-                            return false;
-                        }
-                    }
+                if (checkAllyMoves(teamColor, allyPiece, checkSpot)) {
+                    return false;
                 }
             }
         }
         return true;
+    }
+
+    private boolean checkAllyMoves(TeamColor teamColor, ChessPiece allyPiece, ChessPosition checkSpot) {
+        if (allyPiece != null) {
+            if (allyPiece.getTeamColor() == teamColor) {
+                Collection<ChessMove> spotMoves = validMoves(checkSpot);
+
+                // if it's not empty return false
+                return !spotMoves.isEmpty();
+            }
+        }
+        return false;
     }
 
     /**
