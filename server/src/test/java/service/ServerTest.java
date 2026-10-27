@@ -1,25 +1,21 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.MemoryDataAccess;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
-
 import model.*;
 import service.exceptions.UnauthorizedException;
 import service.requests.*;
 import dataaccess.exceptions.*;
 import service.responses.RegisterResult;
-//import server.exceptions.*;
-
 
 class ServerTest {
+    // instantiate objects for tests
     private static Service service;
     private static MemoryDataAccess dataAccess;
     public RegisterRequest jojo = new RegisterRequest("Jojo", "jojo_is_cool", "jojo@jojo.com");
     public LoginRequest jojoLogin = new LoginRequest("Jojo", "jojo_is_cool");
-
-
-    // instantiate objects for tests
 
     @BeforeEach
     public void setup() {
@@ -123,28 +119,29 @@ class ServerTest {
     // list games tests
 
     @Test
-    public void listGamesSuccessful() {
-
-    }
-
-    @Test
-    public void listMultipleGamesSuccessful() {
-
+    public void listGamesSuccessful() throws AlreadyTakenException, UnauthorizedException {
+        RegisterResult result = service.register(jojo);
+        ListGamesRequest request = new ListGamesRequest(result.authToken());
+        assertEquals(0, service.listGames(request).games().size());
+        dataAccess.createGame(new GameData(4, null, null, "bob", new ChessGame()));
+        assertEquals(1, service.listGames(request).games().size());
     }
 
     @Test
     public void listGamesUnauthorizedUnsuccessful() {
-
+        RegisterResult result = new RegisterResult("Jojo", "234k234");
+        ListGamesRequest request = new ListGamesRequest(result.authToken());
+        assertThrows(UnauthorizedException.class, () -> service.listGames(request));
     }
 
     @Test
-    public void listGamesEmpty() {
-
-    }
-
-    @Test
-    public void listGamesAfterLogoutUnsuccessful() {
-
+    public void listGamesAfterLogoutUnsuccessful() throws UnauthorizedException, AlreadyTakenException {
+        RegisterResult result = service.register(jojo);
+        ListGamesRequest request = new ListGamesRequest(result.authToken());
+        dataAccess.createGame(new GameData(4, null, null, "bob", new ChessGame()));
+        assertEquals(1, service.listGames(request).games().size());
+        service.logout(new LogoutRequest(result.authToken()));
+        assertThrows(UnauthorizedException.class, () -> service.listGames(request));
     }
 
     // create game tests
