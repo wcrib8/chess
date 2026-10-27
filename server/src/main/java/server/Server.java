@@ -4,9 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import dataaccess.MemoryDataAccess;
 import service.*;
 import service.exceptions.*;
@@ -17,7 +15,6 @@ public class Server {
 
     private final Javalin javalin;
     private final Service service = new Service(new MemoryDataAccess());
-    final private HashSet<String> validTokens = new HashSet<>(Set.of("secret1", "secret2"));
 
     public Server() {
         // Register your endpoints and exception handlers here.

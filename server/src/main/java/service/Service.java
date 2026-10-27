@@ -20,8 +20,6 @@ public class Service {
         this.dataAccess = dataAccess;
     }
 
-    // Each service method receives a Request object containing all the information it needs to do its work
-
     public RegisterResult register(RegisterRequest request) throws AlreadyTakenException {
         // connect to data access, check if the name is already taken
         if (dataAccess.getUser(request.username()) != null) {
@@ -73,8 +71,6 @@ public class Service {
                 throw new BadRequestException("Error: bad request");
             }
 
-            // check for already existing game need??
-
             // create new game
             gameIndex++;
             dataAccess.createGame(new GameData(gameIndex, null, null, request.gameName(), new ChessGame()));
@@ -111,6 +107,7 @@ public class Service {
         dataAccess.clear();
     }
 
+    @SuppressWarnings("SameReturnValue")
     public boolean authorized(String authToken) throws UnauthorizedException {
         if (dataAccess.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
@@ -121,6 +118,4 @@ public class Service {
     public static String generateToken() {
         return UUID.randomUUID().toString();
     }
-
-    // when service fails, have error handling, throw exception
 }

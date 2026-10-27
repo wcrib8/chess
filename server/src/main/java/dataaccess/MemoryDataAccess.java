@@ -4,12 +4,11 @@ import model.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class MemoryDataAccess implements DataAccess {
-    private HashMap<String, UserData> users = new HashMap<>();
-    private HashMap<String, AuthData> authorized = new HashMap<>();
-    private ArrayList<GameData> games = new ArrayList<>();
+    private final HashMap<String, UserData> users = new HashMap<>();
+    private final HashMap<String, AuthData> authorized = new HashMap<>();
+    private final ArrayList<GameData> games = new ArrayList<>();
 
     public MemoryDataAccess() {}
     // void insertUser(UserData u) throws DataAccessException
