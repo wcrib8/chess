@@ -8,12 +8,13 @@ import model.*;
 import service.exceptions.UnauthorizedException;
 import service.requests.*;
 import dataaccess.exceptions.*;
+import service.responses.RegisterResult;
 //import server.exceptions.*;
 
 
 class ServerTest {
     private static Service service;
-    private static MemoryDataAccess memoryDataAccess;
+    private static MemoryDataAccess dataAccess;
     public RegisterRequest jojo = new RegisterRequest("Jojo", "jojo_is_cool", "jojo@jojo.com");
     public LoginRequest jojoLogin = new LoginRequest("Jojo", "jojo_is_cool");
 
@@ -22,8 +23,8 @@ class ServerTest {
 
     @BeforeEach
     public void setup() {
-        memoryDataAccess = new MemoryDataAccess();
-        service = new Service(memoryDataAccess);
+        dataAccess = new MemoryDataAccess();
+        service = new Service(dataAccess);
     }
 
     // clear tests
@@ -32,7 +33,7 @@ class ServerTest {
     public void clearRemovesUser() throws AlreadyTakenException {
         registerUserSuccessful();
         service.clear();
-        assertEquals(0, memoryDataAccess.numUsers());
+        assertEquals(0, dataAccess.numUsers());
     }
 
     // register tests
@@ -41,7 +42,7 @@ class ServerTest {
     public void registerUserSuccessful() throws AlreadyTakenException {
         service.register(jojo);
         var jojoUserData = new UserData("Jojo", "jojo_is_cool", "jojo@jojo.com");
-        assertEquals(jojoUserData, memoryDataAccess.getUser("Jojo"));
+        assertEquals(jojoUserData, dataAccess.getUser("Jojo"));
     }
 
     @Test
@@ -49,7 +50,7 @@ class ServerTest {
         var jojoNoName = new RegisterRequest("", "jojo_is_cool", "jojo@jojo.com");
         service.register(jojoNoName);
         var jojoNoNameUserData = new UserData("", "jojo_is_cool", "jojo@jojo.com");
-        assertNotEquals(jojoNoNameUserData, memoryDataAccess.getUser("Jojo"));
+        assertNotEquals(jojoNoNameUserData, dataAccess.getUser("Jojo"));
     }
 
     @Test
@@ -63,7 +64,7 @@ class ServerTest {
     public void registerUserCreatesAuthData() throws AlreadyTakenException {
         var jojo = new RegisterRequest("Jojo", "jojo_is_cool", "jojo@jojo.com");
         service.register(jojo);
-        assertNotNull(memoryDataAccess.getAuth("Jojo"));
+        assertNotNull(dataAccess.getAuth("Jojo"));
     }
 
     // login tests
@@ -90,7 +91,7 @@ class ServerTest {
     @Test
     public void loginUnauthorizedUserUnsuccessful() throws AlreadyTakenException {
         registerUserSuccessful();
-        memoryDataAccess.deleteAuth(memoryDataAccess.getAuth("Jojo"));
+        dataAccess.deleteAuth(dataAccess.getAuth("Jojo"));
         var loginRequest = new LoginRequest("Jojo", "jojo_is_cool");
         assertThrows(UnauthorizedException.class, () -> service.login(loginRequest));
     }
@@ -98,23 +99,25 @@ class ServerTest {
     // logout tests
 
     @Test
-    public void logoutSuccessful() {
-
+    public void logoutSuccessful() throws AlreadyTakenException, UnauthorizedException {
+        RegisterResult result = service.register(jojo);
+        assertEquals(1, dataAccess.numAuthTokens());
+        service.logout(new LogoutRequest(result.authToken()));
+        assertEquals(0, dataAccess.numAuthTokens());
     }
 
     @Test
     public void logoutNonexistentUserUnsuccessful() {
-
+        assertThrows(UnauthorizedException.class, () -> service.logout(new LogoutRequest("3442bdss7vd")));
     }
 
     @Test
-    public void logoutUnauthorizedUserUnsuccessful() {
-
-    }
-
-    @Test
-    public void logoutAlreadyLoggedOutUserUnsuccessful() {
-
+    public void logoutUnauthorizedUserUnsuccessful() throws AlreadyTakenException, UnauthorizedException {
+        RegisterResult result = service.register(jojo);
+        assertEquals(1, dataAccess.numAuthTokens());
+        service.logout(new LogoutRequest(result.authToken()));
+        assertEquals(0, dataAccess.numAuthTokens());
+        assertThrows(UnauthorizedException.class, () -> service.logout(new LogoutRequest(result.authToken())));
     }
 
     // list games tests

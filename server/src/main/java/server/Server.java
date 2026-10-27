@@ -36,7 +36,7 @@ public class Server {
 
     // endpoint handler methods
 
-    private void register(Context ctx) throws AlreadyTakenException {
+    private void register(Context ctx) {
         try {
             RegisterRequest request = new Gson().fromJson(ctx.body(), RegisterRequest.class);
             if (request.username() == null || request.password() == null || request.email() == null) {
@@ -53,7 +53,7 @@ public class Server {
         }
     }
 
-    private void login(Context ctx) throws UnauthorizedException {
+    private void login(Context ctx) {
         try {
             LoginRequest request = new Gson().fromJson(ctx.body(), LoginRequest.class);
             if (request.username() == null || request.password() == null) {
@@ -71,48 +71,55 @@ public class Server {
     }
 
     private void logout(Context ctx) {
-        if (!authorized(ctx)){
-            ctx.status(200);
-            ctx.result("{}");
-            return;
+        try {
+            if (hasAuthBody(ctx)) {
+                //LogoutRequest request = new Gson().fromJson(ctx.header("Authorization"), LogoutRequest.class);
+                LogoutRequest request = new LogoutRequest(ctx.header("Authorization"));
+                service.logout(request);
+                ctx.status(200);
+                ctx.result("{}");
+            }
+        } catch (UnauthorizedException error) {
+            ctx.status(401);
+            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
         }
-        LogoutRequest request = new Gson().fromJson(ctx.body(), LogoutRequest.class);
-        service.logout(request);
-        ctx.status(200);
-        ctx.result("{}");
     }
 
     private void listGames(Context ctx) {
         try {
-            if (authorized(ctx)){
-                ListGamesResult result = service.listGames();
+            if (hasAuthBody(ctx)) {
+                ListGamesRequest request = new ListGamesRequest(ctx.header("Authorization"));
+                ListGamesResult result = service.listGames(request);
                 ctx.status(200);
                 ctx.result(new Gson().toJson(result));
             }
-        } catch (Exception error) {
-
+        } catch (UnauthorizedException error) {
+            ctx.status(401);
+            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
         }
     }
 
     private void createGame(Context ctx) {
         try {
 
-            if (authorized(ctx)){
+            if (hasAuthBody(ctx)){
 
             }
         } catch (Exception error) {
-
+            ctx.status(401);
+            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
         }
     }
 
     private void joinGame(Context ctx) {
         try {
 
-            if (authorized(ctx)){
+            if (hasAuthBody(ctx)){
 
             }
         } catch (Exception error) {
-
+            ctx.status(401);
+            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
         }
     }
 
@@ -122,18 +129,11 @@ public class Server {
         ctx.result("{}");
     }
 
-    private boolean authorized(Context ctx) {
+    private boolean hasAuthBody(Context ctx) {
         String authToken = ctx.header("authorization");
-
-        // get user auth data, check if auth token inside matches
-
-        // ? how to access auth, need username?
-        // login prob
-
-        if (!validTokens.contains(authToken)) {
-            ctx.contentType("application/json");
-            ctx.status(401);
-            ctx.result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        if (authToken == null) {
+            ctx.status(400);
+            ctx.result(new Gson().toJson(Map.of("message", "Error: bad request")));
             return false;
         }
         return true;

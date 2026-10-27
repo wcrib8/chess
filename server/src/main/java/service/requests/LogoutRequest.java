@@ -1,4 +1,4 @@
 package service.requests;
 
-public record LogoutRequest(String username, String authToken) { // need username?
+public record LogoutRequest(String authToken) {
 }

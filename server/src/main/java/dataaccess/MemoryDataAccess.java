@@ -37,8 +37,13 @@ public class MemoryDataAccess implements DataAccess {
 
     }
 
-    public void getGame(GameData gameData) {
-
+    public GameData getGame(int gameID) {
+        for (GameData game : games) {
+            if (game.gameID() == gameID) {
+                return game;
+            }
+        }
+        return null;
     }
 
     public ArrayList<GameData> listGames() {
@@ -50,7 +55,7 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     public void createAuth(AuthData authData) {
-        authorized.put(authData.username(), authData);
+        authorized.put(authData.authToken(), authData);
     }
 
     public AuthData getAuth(String authToken) {
@@ -58,8 +63,8 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     public void deleteAuth(AuthData authData) {
-        authorized.remove(authData.username()   );
+        authorized.remove(authData.authToken());
     }
 
-    // more methods?gf
+    public int numAuthTokens() {return authorized.size();}
 }

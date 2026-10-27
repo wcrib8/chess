@@ -16,7 +16,7 @@ public interface DataAccess {
 
     void createGame(GameData gameData);
 
-    void getGame(GameData gameData);
+    GameData getGame(int gameID);
 
     ArrayList<GameData> listGames();
 

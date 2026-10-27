@@ -44,33 +44,43 @@ public class Service {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
-        // check user has authorization, need to create new auth?? and logout deletes auth??
-        if (dataAccess.getAuth(user.username()) == null) {
-            throw new UnauthorizedException("Error: unauthorized");
+        // create new authData
+        AuthData authData = new AuthData(user.username(), generateToken());
+        dataAccess.createAuth(authData);
+
+        return new LoginResult(loginRequest.username(), authData.authToken());
+    }
+
+    public void logout(LogoutRequest request) throws UnauthorizedException {
+        if (authorized(request.authToken())) {
+            dataAccess.deleteAuth(dataAccess.getAuth(request.authToken()));
         }
-
-        return new LoginResult(loginRequest.username(), dataAccess.getAuth(user.username()).authToken());
     }
 
-    public void logout(LogoutRequest logoutRequest) {
-        var authData = dataAccess.getAuth(logoutRequest.username());
-        dataAccess.deleteAuth(authData);
+    public ListGamesResult listGames(ListGamesRequest request) throws UnauthorizedException {
+        if (authorized(request.authToken())) {
+            return new ListGamesResult(dataAccess.listGames());
+        }
+        return null;
     }
 
-    public ListGamesResult listGames() {
-        return new ListGamesResult(dataAccess.listGames());
-    }
-
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws UnauthorizedException {
         return null;
 
         // should also check if game already in db
     }
 
-    public void joinGame(JoinGameRequest joinGameRequest) {}
+    public void joinGame(JoinGameRequest joinGameRequest) throws UnauthorizedException {}
 
     public void clear() {
         dataAccess.clear();
+    }
+
+    public boolean authorized(String authToken) throws UnauthorizedException {
+        if (dataAccess.getAuth(authToken) == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+        return true;
     }
 
     public static String generateToken() {
