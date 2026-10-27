@@ -72,7 +72,7 @@ public class Server {
 
     private void logout(Context ctx) {
         try {
-            if (hasAuthBody(ctx)) {
+            if (hasAuthHeader(ctx)) {
                 //LogoutRequest request = new Gson().fromJson(ctx.header("Authorization"), LogoutRequest.class);
                 LogoutRequest request = new LogoutRequest(ctx.header("Authorization"));
                 service.logout(request);
@@ -87,7 +87,7 @@ public class Server {
 
     private void listGames(Context ctx) {
         try {
-            if (hasAuthBody(ctx)) {
+            if (hasAuthHeader(ctx)) {
                 ListGamesRequest request = new ListGamesRequest(ctx.header("Authorization"));
                 ListGamesResult result = service.listGames(request);
                 ctx.status(200);
@@ -101,11 +101,17 @@ public class Server {
 
     private void createGame(Context ctx) {
         try {
-
-            if (hasAuthBody(ctx)){
-
+            if (hasAuthHeader(ctx)){
+                CreateGameRequest parseGameName = new Gson().fromJson(ctx.body(), CreateGameRequest.class);
+                CreateGameRequest request = new CreateGameRequest(ctx.header("Authorization"), parseGameName.gameName());
+                CreateGameResult result = service.createGame(request);
+                ctx.status(200);
+                ctx.result(new Gson().toJson(result));
             }
-        } catch (Exception error) {
+        } catch (BadRequestException error) {
+            ctx.status(400);
+            ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
+        } catch (UnauthorizedException error) {
             ctx.status(401);
             ctx.result(new Gson().toJson(Map.of("message", error.getMessage())));
         }
@@ -114,7 +120,7 @@ public class Server {
     private void joinGame(Context ctx) {
         try {
 
-            if (hasAuthBody(ctx)){
+            if (hasAuthHeader(ctx)){
 
             }
         } catch (Exception error) {
@@ -129,7 +135,7 @@ public class Server {
         ctx.result("{}");
     }
 
-    private boolean hasAuthBody(Context ctx) {
+    private boolean hasAuthHeader(Context ctx) {
         String authToken = ctx.header("authorization");
         if (authToken == null) {
             ctx.status(400);

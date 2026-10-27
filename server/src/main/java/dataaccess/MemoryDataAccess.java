@@ -34,7 +34,7 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     public void createGame(GameData gameData) {
-
+        games.add(gameData);
     }
 
     public GameData getGame(int gameID) {
@@ -50,8 +50,13 @@ public class MemoryDataAccess implements DataAccess {
         return games;
     }
 
-    public void updateGame(GameData gameData) {
-
+    public void updateGame(int gameID, GameData gameData) {
+        for (GameData game : games) {
+            if (game.gameID() == gameID) {
+                game = gameData;
+                return;
+            }
+        }
     }
 
     public void createAuth(AuthData authData) {

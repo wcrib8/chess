@@ -20,7 +20,7 @@ public interface DataAccess {
 
     ArrayList<GameData> listGames();
 
-    void updateGame(GameData gameData);
+    void updateGame(int gameID, GameData gameData);
 
     void createAuth(AuthData authData);
 
