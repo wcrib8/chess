@@ -26,9 +26,16 @@ public class MySqlDataAccess implements DataAccess {
      *      GameData?
      */
 
-    public void clear() {}
+    public void clear() {
+        for (String table : tableNames) {
+            var statement = "TRUNCATE " + table;
+            executeUpdate(statement);
+        }
+    }
 
-    public void createUser(UserData userData) {}
+    public void createUser(UserData userData) {
+        var statement = "INSERT INTO ";
+    }
 
     public UserData getUser(String username) {
         return null;
@@ -69,6 +76,16 @@ public class MySqlDataAccess implements DataAccess {
 //
 //        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
 //    }
+
+    private int executeUpdate(String statement, Object... params) {
+
+
+        return 2;
+    }
+
+    private final String[] tableNames = {
+            "users", "auth", "games"
+    };
 
     private final String[] createStatements = {
             """
