@@ -3,9 +3,11 @@ package dataaccess;
 import dataaccess.exceptions.*;
 import model.*;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
 
 public class MySqlDataAccess implements DataAccess {
 
@@ -29,12 +31,17 @@ public class MySqlDataAccess implements DataAccess {
     public void clear() {
         for (String table : tableNames) {
             var statement = "TRUNCATE " + table;
-            executeUpdate(statement);
+            try {
+                executeUpdate(statement);
+            } catch (DataAccessException e) {
+                throw new RuntimeException(e); // temp fix
+            }
         }
     }
 
     public void createUser(UserData userData) {
-        var statement = "INSERT INTO ";
+        var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+
     }
 
     public UserData getUser(String username) {
@@ -77,10 +84,34 @@ public class MySqlDataAccess implements DataAccess {
 //        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
 //    }
 
-    private int executeUpdate(String statement, Object... params) {
+    private int executeUpdate(String statement, Object... params) throws DataAccessException {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    switch (param) {
+                        case String p -> preparedStatement.setString(i + 1, p);
+                        case Integer p -> preparedStatement.setInt(i + 1, p);
+                        case null -> preparedStatement.setNull(i + 1, NULL);
+                        default -> {
+                        }
+                    }
+                }
+                preparedStatement.executeUpdate();
 
+                ResultSet rs = preparedStatement.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
 
-        return 2;
+                return 0;
+            }
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: ", error);
+        } catch (DataAccessException error) {
+            // what to do
+            throw new RuntimeException(); // for now
+        }
     }
 
     private final String[] tableNames = {
