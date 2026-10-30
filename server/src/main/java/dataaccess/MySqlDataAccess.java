@@ -1,7 +1,9 @@
 package dataaccess;
 
+import com.google.gson.Gson;
 import dataaccess.exceptions.*;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -41,7 +43,13 @@ public class MySqlDataAccess implements DataAccess {
 
     public void createUser(UserData userData) {
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-
+        String json = new Gson().toJson(userData);
+        String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+        try {
+            int id = executeUpdate(statement, userData.username(), hashedPassword, userData.email(), json);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e); // temp fix
+        }
     }
 
     public UserData getUser(String username) {
@@ -70,13 +78,13 @@ public class MySqlDataAccess implements DataAccess {
 
 
 
-//    void storeUserPassword(String username, String clearTextPassword) {
-//        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
-//
-//        // Write the hashed password to the database along with the user's other information
-//        writeHashedPasswordToDatabase(username, hashedPassword);
-//    }
-//
+    void storeUserPassword(String username, String clearTextPassword) {
+        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+
+        // Write the hashed password to the database along with the user's other information
+        //writeHashedPasswordToDatabase(username, hashedPassword);
+    }
+
 //    boolean verifyUser(String username, String providedClearTextPassword) {
 //        // Read the previously hashed password from the database
 //        var hashedPassword = readHashedPasswordFromDatabase(username);
