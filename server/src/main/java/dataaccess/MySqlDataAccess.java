@@ -53,6 +53,22 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     public UserData getUser(String username) {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, password FROM users WHERE username=?";
+            try (PreparedStatement ps = connection.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new UserData(
+                                rs.getString("username"),
+                                rs.getString("password"),
+                                rs.getString("email"));
+                    }
+                }
+            }
+        } catch (Exception error) {
+            throw new RuntimeException(); // for now
+        }
         return null;
     }
 
@@ -94,20 +110,20 @@ public class MySqlDataAccess implements DataAccess {
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement ps = connection.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
                     switch (param) {
-                        case String p -> preparedStatement.setString(i + 1, p);
-                        case Integer p -> preparedStatement.setInt(i + 1, p);
-                        case null -> preparedStatement.setNull(i + 1, NULL);
+                        case String p -> ps.setString(i + 1, p);
+                        case Integer p -> ps.setInt(i + 1, p);
+                        case null -> ps.setNull(i + 1, NULL);
                         default -> {
                         }
                     }
                 }
-                preparedStatement.executeUpdate();
+                ps.executeUpdate();
 
-                ResultSet rs = preparedStatement.getGeneratedKeys();
+                ResultSet rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
