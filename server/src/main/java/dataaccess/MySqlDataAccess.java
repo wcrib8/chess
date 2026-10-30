@@ -98,7 +98,14 @@ public class MySqlDataAccess implements DataAccess {
         return null;
     }
 
-    public void deleteAuth(AuthData authData) {}
+    public void deleteAuth(AuthData authData) {
+        var statement = "DELETE FROM auth WHERE username=?";
+        try {
+            executeUpdate(statement, authData.username());
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e); // temp fix
+        }
+    }
 
 
 
