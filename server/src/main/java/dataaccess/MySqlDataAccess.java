@@ -84,7 +84,15 @@ public class MySqlDataAccess implements DataAccess {
 
     public void updateGame(GameData gameData, String playerColor, String username) {}
 
-    public void createAuth(AuthData authData) {}
+    public void createAuth(AuthData authData) {
+        var statement = "INSERT INTO auth (username, authToken) VALUES (?, ?)";
+        String json = new Gson().toJson(authData);
+        try {
+            executeUpdate(statement, authData.username(), authData.authToken(), json);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e); // temp fix
+        }
+    }
 
     public AuthData getAuth(String username) {
         return null;
