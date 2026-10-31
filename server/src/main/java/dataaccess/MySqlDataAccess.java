@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.exceptions.*;
 import model.*;
@@ -90,6 +91,24 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     public GameData getGame(int gameID) {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM games WHERE gameID=?";
+            try (PreparedStatement ps = connection.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new GameData(
+                                rs.getInt("gameID"),
+                                rs.getString("whiteUsername"),
+                                rs.getString("blackUsername"),
+                                rs.getString("gameName"),
+                                (ChessGame) rs.getObject("game"));
+                    }
+                }
+            }
+        } catch (Exception error) {
+            throw new RuntimeException(); // temp
+        }
         return null;
     }
 
