@@ -72,17 +72,34 @@ public class MySqlDataAccess implements DataAccess {
         return null;
     }
 
-    public void createGame(GameData gameData) {}
+    public void createGame(GameData gameData) {
+        var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+        String json = new Gson().toJson(gameData);
+        try {
+            executeUpdate(
+                    statement,
+                    gameData.gameID(),
+                    gameData.whiteUsername(),
+                    gameData.blackUsername(),
+                    gameData.gameName(),
+                    gameData.game(),
+                    json);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e); // temp fix
+        }
+    }
 
     public GameData getGame(int gameID) {
         return null;
     }
 
     public ArrayList<GameData> listGames() {
+        var statement = "SELECT";
         return null;
     }
 
-    public void updateGame(GameData gameData, String playerColor, String username) {}
+    public void updateGame(GameData gameData, String playerColor, String username) {
+    }
 
     public void createAuth(AuthData authData) {
         var statement = "INSERT INTO auth (username, authToken) VALUES (?, ?)";
