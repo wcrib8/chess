@@ -89,12 +89,28 @@ public class MySqlDataAccess implements DataAccess {
         String json = new Gson().toJson(authData);
         try {
             executeUpdate(statement, authData.username(), authData.authToken(), json);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e); // temp fix
+        } catch (DataAccessException error) {
+            throw new RuntimeException(error); // temp fix
         }
     }
 
     public AuthData getAuth(String username) {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, authToken FROM auth WHERE username=?";
+            try (PreparedStatement ps = connection.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new AuthData(
+                                rs.getString("authToken"),
+                                rs.getString("username"));
+                    }
+                }
+            }
+        } catch (Exception error) {
+            throw new RuntimeException(error); // temp fix
+        }
+
         return null;
     }
 
