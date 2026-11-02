@@ -21,11 +21,11 @@ public class MySqlDataAccess implements DataAccess {
      * users table~
      *      username(primary key), hashed password, email
      *      username, UserData?
-     *
+
      * auth table~
      *      authToken(primary key), username
      *      authToken, AuthData?
-     *
+
      * game table~
      *      gameID(primary key), whiteUsername, blackUsername, gameName, game
      *      GameData?
@@ -50,7 +50,7 @@ public class MySqlDataAccess implements DataAccess {
         String json = new Gson().toJson(userData);
         String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
         try {
-            int id = executeUpdate(statement, userData.username(), hashedPassword, userData.email(), json);
+            executeUpdate(statement, userData.username(), hashedPassword, userData.email(), json);
         } catch (SQLException error) {
             throw new DataAccessException("Error: failed to connect to database. ", error);
         }
@@ -117,16 +117,40 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     public ArrayList<GameData> listGames() throws DataAccessException {
-        //var statement = "SELECT";
-        return null;
+        try (Connection connection = DatabaseManager.getConnection()) {
+            ArrayList<GameData> gamesList = new ArrayList<>();
+            var statement = "SELECT gameID, gameName FROM games";
+            try (PreparedStatement ps = connection.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        gamesList.add( new GameData(
+                                rs.getInt("gameID"),
+                                rs.getString("whiteUsername"),
+                                rs.getString("blackUsername"),
+                                rs.getString("gameName"),
+                                (ChessGame) rs.getObject("game")
+                        ));
+                    }
+                }
+            }
+            return gamesList;
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: failed to connect to database. ", error);
+        }
     }
 
     public void updateGame(GameData gameData, String playerColor, String username) throws DataAccessException {
-//        if (playerColor.equals("WHITE")) {
-//            var statement = "";
-//        } else {
-//            var statement =
-//        }
+        try {
+            String statement;
+            if (playerColor.equals("WHITE")) {
+                statement = "UPDATE games SET whiteUsername=? WHERE gameID=?";
+            } else {
+                statement = "UPDATE games SET blackUsername=? WHERE gameID=?";
+            }
+            executeUpdate(statement, username, gameData.gameID());
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: failed to connect to database. ", error);
+        }
     }
 
     public void createAuth(AuthData authData) throws DataAccessException {
@@ -207,7 +231,7 @@ public class MySqlDataAccess implements DataAccess {
                 return 0;
             }
         } catch (SQLException error) {
-            throw new DataAccessException("Error: failed to connect to database. ", error); // for now
+            throw new DataAccessException("Error: failed to connect to database. ", error);
         }
     }
 
@@ -218,33 +242,35 @@ public class MySqlDataAccess implements DataAccess {
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS users (
-            `userID` int NOT NULL AUTO_INCREMENT,
-            `username` varchar(256) NOT NULL,
-            `password` char(60) NOT NULL,
-            `email` varchar(256) NOT NULL,
-            PRIMARY KEY (`userID`),
+            `userID` INT NOT NULL AUTO_INCREMENT,
+            `username` VARCHAR(256) NOT NULL UNIQUE,
+            `password` CHAR(60) NOT NULL,
+            `email` VARCHAR(256) NOT NULL,
+            PRIMARY KEY (`userID`)
             )
             """,
             """
             CREATE TABLE IF NOT EXISTS auth (
-            `authID` int NOT NULL AUTO_INCREMENT,
-            `authToken` varchar(256) NOT NULL,
-            `username` varchar(256) NOT NULL,
+            `authID` INT NOT NULL AUTO_INCREMENT,
+            `authToken` VARCHAR(256) NOT NULL,
+            `username` VARCHAR(256) NOT NULL,
             PRIMARY KEY (`authID`),
+            FOREIGN KEY (`username`) REFERENCES users(`username`)
             )
             """,
             """
             CREATE TABLE IF NOT EXISTS games (
-            `gameID` int NOT NULL AUTO_INCREMENT,
-            `whiteUsername` varchar(256),
-            `blackUsername` varchar(256),
-            `gameName` varchar(256),
-            `game` text,
+            `gameID` INT NOT NULL AUTO_INCREMENT,
+            `whiteUsername` VARCHAR(256),
+            `blackUsername` VARCHAR(256),
+            `gameName` VARCHAR(256),
+            `game` TEXT,
             PRIMARY KEY (`gameID`),
+            FOREIGN KEY (`whiteUsername`) REFERENCES users(`username`),
+            FOREIGN KEY (`blackUsername`) REFERENCES users(`username`)
             )
             """
     };
-    // ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
     private void configureDatabase() throws DataAccessException, SQLException {
         DatabaseManager.createDatabase();
@@ -254,11 +280,8 @@ public class MySqlDataAccess implements DataAccess {
                     preparedStatement.executeUpdate();
                 }
             }
-        } catch (DataAccessException error) {
-            // throw? then service can catch exception?
-            throw new RuntimeException(); // not actual fixes
         } catch (SQLException error) {
-            throw new RuntimeException(error); // not a fix
+            throw new DataAccessException("Error: failed to connect to database. ", error);
         }
     }
 }
