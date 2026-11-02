@@ -14,7 +14,7 @@ import static java.sql.Types.NULL;
 
 public class MySqlDataAccess implements DataAccess {
 
-    public MySqlDataAccess() throws SQLException, DataAccessException {
+    public MySqlDataAccess() throws DataAccessException, SQLException {
         configureDatabase();
     }
     /**
@@ -31,29 +31,32 @@ public class MySqlDataAccess implements DataAccess {
      *      GameData?
      */
 
-    public void clear() {
-        for (String table : tableNames) {
-            var statement = "TRUNCATE " + table;
-            try {
+
+    // need helper for deserialization of chess pieces????????
+
+    public void clear() throws DataAccessException {
+        try {
+            for (String table : tableNames) {
+                var statement = "TRUNCATE " + table;
                 executeUpdate(statement);
-            } catch (DataAccessException e) {
-                throw new RuntimeException(e); // temp fix
             }
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: failed to connect to database. ", error);
         }
     }
 
-    public void createUser(UserData userData) {
+    public void createUser(UserData userData) throws DataAccessException {
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
         String json = new Gson().toJson(userData);
         String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
         try {
             int id = executeUpdate(statement, userData.username(), hashedPassword, userData.email(), json);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e); // temp fix
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: failed to connect to database. ", error);
         }
     }
 
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             var statement = "SELECT username, password FROM users WHERE username=?";
             try (PreparedStatement ps = connection.prepareStatement(statement)) {
@@ -67,13 +70,13 @@ public class MySqlDataAccess implements DataAccess {
                     }
                 }
             }
-        } catch (Exception error) {
-            throw new RuntimeException(); // for now
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: failed to connect to database. ", error);
         }
         return null;
     }
 
-    public void createGame(GameData gameData) {
+    public void createGame(GameData gameData) throws DataAccessException {
         var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
         String json = new Gson().toJson(gameData);
         try {
@@ -85,12 +88,12 @@ public class MySqlDataAccess implements DataAccess {
                     gameData.gameName(),
                     gameData.game(),
                     json);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e); // temp fix
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: failed to connect to database. ", error);
         }
     }
 
-    public GameData getGame(int gameID) {
+    public GameData getGame(int gameID) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM games WHERE gameID=?";
             try (PreparedStatement ps = connection.prepareStatement(statement)) {
@@ -103,34 +106,40 @@ public class MySqlDataAccess implements DataAccess {
                                 rs.getString("blackUsername"),
                                 rs.getString("gameName"),
                                 (ChessGame) rs.getObject("game"));
+                                // have a getString to get the json, convert to GameData instead?
                     }
                 }
             }
-        } catch (Exception error) {
-            throw new RuntimeException(); // temp
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: failed to connect to database. ", error);
         }
         return null;
     }
 
-    public ArrayList<GameData> listGames() {
-        var statement = "SELECT";
+    public ArrayList<GameData> listGames() throws DataAccessException {
+        //var statement = "SELECT";
         return null;
     }
 
-    public void updateGame(GameData gameData, String playerColor, String username) {
+    public void updateGame(GameData gameData, String playerColor, String username) throws DataAccessException {
+//        if (playerColor.equals("WHITE")) {
+//            var statement = "";
+//        } else {
+//            var statement =
+//        }
     }
 
-    public void createAuth(AuthData authData) {
+    public void createAuth(AuthData authData) throws DataAccessException {
         var statement = "INSERT INTO auth (username, authToken) VALUES (?, ?)";
         String json = new Gson().toJson(authData);
         try {
             executeUpdate(statement, authData.username(), authData.authToken(), json);
-        } catch (DataAccessException error) {
-            throw new RuntimeException(error); // temp fix
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: failed to connect to database. ", error);
         }
     }
 
-    public AuthData getAuth(String username) {
+    public AuthData getAuth(String username) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             var statement = "SELECT username, authToken FROM auth WHERE username=?";
             try (PreparedStatement ps = connection.prepareStatement(statement)) {
@@ -143,19 +152,19 @@ public class MySqlDataAccess implements DataAccess {
                     }
                 }
             }
-        } catch (Exception error) {
-            throw new RuntimeException(error); // temp fix
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: failed to connect to database. ", error);
         }
 
         return null;
     }
 
-    public void deleteAuth(AuthData authData) {
+    public void deleteAuth(AuthData authData) throws DataAccessException {
         var statement = "DELETE FROM auth WHERE username=?";
         try {
             executeUpdate(statement, authData.username());
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e); // temp fix
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: failed to connect to database. ", error);
         }
     }
 
@@ -175,7 +184,7 @@ public class MySqlDataAccess implements DataAccess {
 //        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
 //    }
 
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
+    private int executeUpdate(String statement, Object... params) throws SQLException, DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
@@ -198,10 +207,7 @@ public class MySqlDataAccess implements DataAccess {
                 return 0;
             }
         } catch (SQLException error) {
-            throw new DataAccessException("Error: ", error);
-        } catch (DataAccessException error) {
-            // what to do
-            throw new RuntimeException(); // for now
+            throw new DataAccessException("Error: failed to connect to database. ", error); // for now
         }
     }
 
@@ -217,7 +223,7 @@ public class MySqlDataAccess implements DataAccess {
             `password` char(60) NOT NULL,
             `email` varchar(256) NOT NULL,
             PRIMARY KEY (`userID`),
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            )
             """,
             """
             CREATE TABLE IF NOT EXISTS auth (
@@ -225,7 +231,7 @@ public class MySqlDataAccess implements DataAccess {
             `authToken` varchar(256) NOT NULL,
             `username` varchar(256) NOT NULL,
             PRIMARY KEY (`authID`),
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            )
             """,
             """
             CREATE TABLE IF NOT EXISTS games (
@@ -235,9 +241,10 @@ public class MySqlDataAccess implements DataAccess {
             `gameName` varchar(256),
             `game` text,
             PRIMARY KEY (`gameID`),
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            )
             """
     };
+    // ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
     private void configureDatabase() throws DataAccessException, SQLException {
         DatabaseManager.createDatabase();
@@ -249,8 +256,9 @@ public class MySqlDataAccess implements DataAccess {
             }
         } catch (DataAccessException error) {
             // throw? then service can catch exception?
+            throw new RuntimeException(); // not actual fixes
         } catch (SQLException error) {
-
+            throw new RuntimeException(error); // not a fix
         }
     }
 }

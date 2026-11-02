@@ -1,5 +1,6 @@
 package dataaccess;
 
+import dataaccess.exceptions.DataAccessException;
 import model.*;
 
 import java.util.ArrayList;
@@ -7,23 +8,23 @@ import java.util.ArrayList;
 public interface DataAccess {
 
 
-    void clear();
+    void clear() throws DataAccessException;
 
-    void createUser(UserData userData);
+    void createUser(UserData userData) throws DataAccessException;
 
-    UserData getUser(String username);
+    UserData getUser(String username) throws DataAccessException;
 
-    void createGame(GameData gameData);
+    void createGame(GameData gameData) throws DataAccessException;
 
-    GameData getGame(int gameID);
+    GameData getGame(int gameID) throws DataAccessException;
 
-    ArrayList<GameData> listGames();
+    ArrayList<GameData> listGames() throws DataAccessException;
 
-    void updateGame(GameData gameData, String playerColor, String username);
+    void updateGame(GameData gameData, String playerColor, String username) throws DataAccessException;
 
-    void createAuth(AuthData authData);
+    void createAuth(AuthData authData) throws DataAccessException;
 
-    AuthData getAuth(String username);
+    AuthData getAuth(String username) throws DataAccessException;
 
-    void deleteAuth(AuthData authData);
+    void deleteAuth(AuthData authData) throws DataAccessException;
 }

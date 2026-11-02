@@ -27,7 +27,7 @@ class ServerTest {
     // clear tests
 
     @Test
-    public void clearRemovesUser() throws AlreadyTakenException {
+    public void clearRemovesUser() throws DataAccessException, AlreadyTakenException {
         registerUserSuccessful();
         service.clear();
         assertEquals(0, dataAccess.numUsers());
@@ -36,14 +36,14 @@ class ServerTest {
     // register tests
 
     @Test
-    public void registerUserSuccessful() throws AlreadyTakenException {
+    public void registerUserSuccessful() throws AlreadyTakenException, DataAccessException {
         service.register(jojo);
         var jojoUserData = new UserData("Jojo", "jojo_is_cool", "jojo@jojo.com");
         assertEquals(jojoUserData, dataAccess.getUser("Jojo"));
     }
 
     @Test
-    public void registerWithNoNameUnsuccessful() throws AlreadyTakenException {
+    public void registerWithNoNameUnsuccessful() throws DataAccessException, AlreadyTakenException {
         var jojoNoName = new RegisterRequest("", "jojo_is_cool", "jojo@jojo.com");
         service.register(jojoNoName);
         var jojoNoNameUserData = new UserData("", "jojo_is_cool", "jojo@jojo.com");
@@ -51,14 +51,14 @@ class ServerTest {
     }
 
     @Test
-    public void registerExistingUserUnsuccessful() throws AlreadyTakenException {
+    public void registerExistingUserUnsuccessful() throws DataAccessException, AlreadyTakenException {
         var jojoNoName = new RegisterRequest("", "jojo_is_cool", "jojo@jojo.com");
         service.register(jojoNoName);
         assertThrows(AlreadyTakenException.class, () -> service.register(jojoNoName));
     }
 
     @Test
-    public void registerUserCreatesAuthData() throws AlreadyTakenException {
+    public void registerUserCreatesAuthData() throws DataAccessException, AlreadyTakenException {
         var jojo = new RegisterRequest("Jojo", "jojo_is_cool", "jojo@jojo.com");
         var result = service.register(jojo);
         assertNotNull(dataAccess.getAuth(result.authToken()));
@@ -67,7 +67,7 @@ class ServerTest {
     // login tests
 
     @Test
-    public void loginSuccessful() throws UnauthorizedException, AlreadyTakenException {
+    public void loginSuccessful() throws DataAccessException, UnauthorizedException, AlreadyTakenException {
         registerUserSuccessful();
         var result = service.login(jojoLogin);
         assertEquals("Jojo", result.username()); // user
@@ -79,7 +79,7 @@ class ServerTest {
     }
 
     @Test
-    public void loginWithNoPasswordUnsuccessful() throws AlreadyTakenException {
+    public void loginWithNoPasswordUnsuccessful() throws DataAccessException, AlreadyTakenException {
         registerUserSuccessful();
         var loginRequest = new LoginRequest("Jojo", "");
         assertThrows(UnauthorizedException.class, () -> service.login(loginRequest));
@@ -88,7 +88,7 @@ class ServerTest {
     // logout tests
 
     @Test
-    public void logoutSuccessful() throws AlreadyTakenException, UnauthorizedException {
+    public void logoutSuccessful() throws DataAccessException, AlreadyTakenException, UnauthorizedException {
         RegisterResult result = service.register(jojo);
         assertEquals(1, dataAccess.numAuthTokens());
         service.logout(new LogoutRequest(result.authToken()));
@@ -101,7 +101,7 @@ class ServerTest {
     }
 
     @Test
-    public void logoutUnauthorizedUserUnsuccessful() throws AlreadyTakenException, UnauthorizedException {
+    public void logoutUnauthorizedUserUnsuccessful() throws DataAccessException, AlreadyTakenException, UnauthorizedException {
         RegisterResult result = service.register(jojo);
         assertEquals(1, dataAccess.numAuthTokens());
         service.logout(new LogoutRequest(result.authToken()));
@@ -112,7 +112,7 @@ class ServerTest {
     // list games tests
 
     @Test
-    public void listGamesSuccessful() throws AlreadyTakenException, UnauthorizedException {
+    public void listGamesSuccessful() throws DataAccessException, AlreadyTakenException, UnauthorizedException {
         RegisterResult result = service.register(jojo);
         ListGamesRequest request = new ListGamesRequest(result.authToken());
         assertEquals(0, service.listGames(request).games().size());
@@ -128,7 +128,7 @@ class ServerTest {
     }
 
     @Test
-    public void listGamesAfterLogoutUnsuccessful() throws UnauthorizedException, AlreadyTakenException {
+    public void listGamesAfterLogoutUnsuccessful() throws DataAccessException, UnauthorizedException, AlreadyTakenException {
         RegisterResult result = service.register(jojo);
         ListGamesRequest request = new ListGamesRequest(result.authToken());
         dataAccess.createGame(new GameData(4, null, null, "bob", new ChessGame()));
@@ -140,7 +140,7 @@ class ServerTest {
     // create game tests
 
     @Test
-    public void createGameSuccessful() throws AlreadyTakenException, UnauthorizedException, BadRequestException {
+    public void createGameSuccessful() throws DataAccessException, AlreadyTakenException, UnauthorizedException, BadRequestException {
         RegisterResult register = service.register(jojo);
         CreateGameRequest request = new CreateGameRequest(register.authToken(), "war");
         var result = service.createGame(request);
@@ -157,7 +157,7 @@ class ServerTest {
     }
 
     @Test
-    public void createGameNoNameUnsuccessful() throws AlreadyTakenException {
+    public void createGameNoNameUnsuccessful() throws DataAccessException, AlreadyTakenException {
         RegisterResult register = service.register(jojo);
         CreateGameRequest request = new CreateGameRequest(register.authToken(), "");
         assertThrows(BadRequestException.class, () -> service.createGame(request));
@@ -166,7 +166,7 @@ class ServerTest {
     // join game tests
 
     @Test
-    public void joinGameSuccessful() throws AlreadyTakenException, UnauthorizedException, BadRequestException {
+    public void joinGameSuccessful() throws DataAccessException, AlreadyTakenException, UnauthorizedException, BadRequestException {
         RegisterResult register = service.register(jojo);
         CreateGameRequest request = new CreateGameRequest(register.authToken(), "war");
         service.createGame(request);
@@ -182,13 +182,13 @@ class ServerTest {
     }
 
     @Test
-    public void joinNonexistentGameUnsuccessful() throws AlreadyTakenException {
+    public void joinNonexistentGameUnsuccessful() throws DataAccessException, AlreadyTakenException {
         RegisterResult register = service.register(jojo);
         assertThrows(BadRequestException.class, () -> service.joinGame(new JoinGameRequest(register.authToken(), "WHITE", 1)));
     }
 
     @Test
-    public void joinFullGameUnsuccessful() throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+    public void joinFullGameUnsuccessful() throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
         RegisterResult register = service.register(jojo);
         CreateGameRequest request = new CreateGameRequest(register.authToken(), "war");
         service.createGame(request);

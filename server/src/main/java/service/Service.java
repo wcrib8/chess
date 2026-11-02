@@ -3,6 +3,7 @@ package service;
 import chess.ChessGame;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.DataAccess;
+import dataaccess.exceptions.DataAccessException;
 import model.*;
 import service.exceptions.BadRequestException;
 import service.exceptions.UnauthorizedException;
@@ -20,7 +21,7 @@ public class Service {
         this.dataAccess = dataAccess;
     }
 
-    public RegisterResult register(RegisterRequest request) throws AlreadyTakenException {
+    public RegisterResult register(RegisterRequest request) throws AlreadyTakenException, DataAccessException {
         // connect to data access, check if the name is already taken
         if (dataAccess.getUser(request.username()) != null) {
             throw new AlreadyTakenException("Error: already taken");
@@ -33,7 +34,7 @@ public class Service {
         return new RegisterResult(request.username(), authToken);
     }
 
-    public LoginResult login(LoginRequest request) throws UnauthorizedException {
+    public LoginResult login(LoginRequest request) throws UnauthorizedException, DataAccessException {
         // if no user with this info, send error
         UserData user = dataAccess.getUser(request.username());
         if (user == null) {
@@ -52,20 +53,20 @@ public class Service {
         return new LoginResult(request.username(), authData.authToken());
     }
 
-    public void logout(LogoutRequest request) throws UnauthorizedException {
+    public void logout(LogoutRequest request) throws UnauthorizedException, DataAccessException {
         if (authorized(request.authToken())) {
             dataAccess.deleteAuth(dataAccess.getAuth(request.authToken()));
         }
     }
 
-    public ListGamesResult listGames(ListGamesRequest request) throws UnauthorizedException {
+    public ListGamesResult listGames(ListGamesRequest request) throws UnauthorizedException, DataAccessException {
         if (authorized(request.authToken())) {
             return new ListGamesResult(dataAccess.listGames());
         }
         return null;
     }
 
-    public CreateGameResult createGame(CreateGameRequest request) throws UnauthorizedException, BadRequestException {
+    public CreateGameResult createGame(CreateGameRequest request) throws UnauthorizedException, BadRequestException, DataAccessException {
         if (authorized(request.authToken())) {
             if (request.gameName() == null || request.gameName().isEmpty()) {
                 throw new BadRequestException("Error: bad request");
@@ -80,7 +81,7 @@ public class Service {
         return null;
     }
 
-    public void joinGame(JoinGameRequest request) throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+    public void joinGame(JoinGameRequest request) throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
         if (authorized(request.authToken())) {
             var game = dataAccess.getGame(request.gameID());
 
@@ -103,12 +104,12 @@ public class Service {
         }
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         dataAccess.clear();
     }
 
     @SuppressWarnings("SameReturnValue")
-    public boolean authorized(String authToken) throws UnauthorizedException {
+    public boolean authorized(String authToken) throws UnauthorizedException, DataAccessException {
         if (dataAccess.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }

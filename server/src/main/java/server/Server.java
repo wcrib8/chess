@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import dataaccess.exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
+
+import java.sql.SQLException;
 import java.util.Map;
-import dataaccess.MemoryDataAccess;
+import dataaccess.*;
 import service.*;
 import service.exceptions.*;
 import service.requests.*;
@@ -14,7 +16,16 @@ import service.responses.*;
 public class Server {
 
     private final Javalin javalin;
-    private final Service service = new Service(new MemoryDataAccess());
+    //private final Service service = new Service(new MySqlDataAccess());
+    private final Service service;
+    {
+        try {
+            service = new Service(new MySqlDataAccess());
+        } catch (DataAccessException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public Server() {
         // Register your endpoints and exception handlers here.
@@ -46,6 +57,8 @@ public class Server {
             ctx.result(new Gson().toJson(result));
         } catch (AlreadyTakenException error) {
             exceptionResult(ctx, error, 403);
+        } catch (DataAccessException error) {
+            exceptionResult(ctx, error, 500);
         }
     }
 
@@ -62,6 +75,8 @@ public class Server {
             ctx.result(new Gson().toJson(result));
         } catch (UnauthorizedException error) {
             exceptionResult(ctx, error, 401);
+        } catch (DataAccessException error) {
+        exceptionResult(ctx, error, 500);
         }
     }
 
@@ -76,6 +91,8 @@ public class Server {
             }
         } catch (UnauthorizedException error) {
             exceptionResult(ctx, error, 401);
+        } catch (DataAccessException error) {
+            exceptionResult(ctx, error, 500);
         }
     }
 
@@ -89,6 +106,8 @@ public class Server {
             }
         } catch (UnauthorizedException error) {
             exceptionResult(ctx, error, 401);
+        } catch (DataAccessException error) {
+            exceptionResult(ctx, error, 500);
         }
     }
 
@@ -105,6 +124,8 @@ public class Server {
             exceptionResult(ctx, error, 400);
         } catch (UnauthorizedException error) {
             exceptionResult(ctx, error, 401);
+        } catch (DataAccessException error) {
+            exceptionResult(ctx, error, 500);
         }
     }
 
@@ -124,13 +145,19 @@ public class Server {
             exceptionResult(ctx, error, 401);
         } catch (AlreadyTakenException error) {
             exceptionResult(ctx, error, 403);
+        } catch (DataAccessException error) {
+            exceptionResult(ctx, error, 500);
         }
     }
 
     private void clear(Context ctx) {
-        service.clear();
-        ctx.status(200);
-        ctx.result("{}");
+        try {
+            service.clear();
+            ctx.status(200);
+            ctx.result("{}");
+        } catch (DataAccessException error) {
+            exceptionResult(ctx, error, 500);
+        }
     }
 
     private static void exceptionResult(Context ctx, Exception error, int status) {
