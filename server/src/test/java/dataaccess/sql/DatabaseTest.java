@@ -1,7 +1,6 @@
 package dataaccess.sql;
 
 import chess.ChessGame;
-import dataaccess.MySqlDataAccess;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -2,12 +2,13 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.exceptions.*;
+import dataaccess.sql.MySqlDataAccess;
 import io.javalin.*;
 import io.javalin.http.Context;
 
 import java.sql.SQLException;
 import java.util.Map;
-import dataaccess.*;
+
 import service.*;
 import service.exceptions.*;
 import service.requests.*;

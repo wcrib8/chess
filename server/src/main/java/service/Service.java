@@ -1,7 +1,7 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.MySqlDataAccess;
+import dataaccess.sql.MySqlDataAccess;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.DataAccess;
 import dataaccess.exceptions.DataAccessException;
