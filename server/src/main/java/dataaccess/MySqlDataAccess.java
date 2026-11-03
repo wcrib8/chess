@@ -102,12 +102,13 @@ public class MySqlDataAccess implements DataAccess {
                 ps.setInt(1, gameID);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
+                        //var chessGame =
                         return new GameData(
                                 rs.getInt("gameID"),
                                 rs.getString("whiteUsername"),
                                 rs.getString("blackUsername"),
                                 rs.getString("gameName"),
-                                (ChessGame) rs.getObject("game"));
+                                new Gson().fromJson(rs.getString("game"), ChessGame.class));
                     }
                 }
             }
@@ -129,7 +130,7 @@ public class MySqlDataAccess implements DataAccess {
                                 rs.getString("whiteUsername"),
                                 rs.getString("blackUsername"),
                                 rs.getString("gameName"),
-                                (ChessGame) rs.getObject("game")
+                                new Gson().fromJson(rs.getString("game"), ChessGame.class)
                         ));
                     }
                 }
@@ -184,9 +185,9 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     public void deleteAuth(AuthData authData) throws DataAccessException {
-        var statement = "DELETE FROM auth WHERE username=?";
+        var statement = "DELETE FROM auth WHERE authToken=?";
         try {
-            executeUpdate(statement, authData.username());
+            executeUpdate(statement, authData.authToken());
         } catch (SQLException error) {
             throw new DataAccessException("Error: failed to connect to database. ", error);
         }
