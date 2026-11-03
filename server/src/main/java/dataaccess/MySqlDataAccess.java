@@ -208,20 +208,24 @@ public class MySqlDataAccess implements DataAccess {
     private void executeUpdate(String statement, Object... params) throws SQLException, DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    switch (param) {
-                        case String p -> ps.setString(i + 1, p);
-                        case Integer p -> ps.setInt(i + 1, p);
-                        case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                        }
-                    }
-                }
+                iterateParameters(params, ps);
                 ps.executeUpdate();
             }
         } catch (SQLException error) {
             throw new DataAccessException("Error: failed to connect to database. ", error);
+        }
+    }
+
+    private static void iterateParameters(Object[] params, PreparedStatement ps) throws SQLException {
+        for (int i = 0; i < params.length; i++) {
+            Object param = params[i];
+            switch (param) {
+                case String p -> ps.setString(i + 1, p);
+                case Integer p -> ps.setInt(i + 1, p);
+                case null -> ps.setNull(i + 1, NULL);
+                default -> {
+                }
+            }
         }
     }
 
