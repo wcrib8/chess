@@ -1,10 +1,12 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.MySqlDataAccess;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.DataAccess;
 import dataaccess.exceptions.DataAccessException;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 import service.exceptions.BadRequestException;
 import service.exceptions.UnauthorizedException;
 import service.requests.*;
@@ -42,7 +44,7 @@ public class Service {
         }
 
         // check username and password matches
-        if (!request.username().equals(user.username()) || !request.password().equals(user.password())) {
+        if (checkUser(request, user)) {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
@@ -118,5 +120,15 @@ public class Service {
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
+    }
+
+    private boolean checkUser(LoginRequest request, UserData user) {
+        if (dataAccess.getClass() == MySqlDataAccess.class) {
+            var hashedPassword = user.password();
+            var originalPassword = request.password();
+            return  !request.username().equals(user.username()) || !BCrypt.checkpw(originalPassword, hashedPassword);
+        } else {
+            return !request.username().equals(user.username()) || !request.password().equals(user.password());
+        }
     }
 }

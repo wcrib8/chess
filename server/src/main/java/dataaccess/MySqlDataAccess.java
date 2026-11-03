@@ -36,10 +36,14 @@ public class MySqlDataAccess implements DataAccess {
 
     public void clear() throws DataAccessException {
         try {
-            for (String table : tableNames) {
-                var statement = "TRUNCATE " + table;
-                executeUpdate(statement);
-            }
+//            for (String table : tableNames) {
+//                var statement = "TRUNCATE " + table;
+//                executeUpdate(statement);
+//            }
+            executeUpdate("TRUNCATE auth");
+            executeUpdate("TRUNCATE games");
+            executeUpdate("DELETE FROM users");
+            executeUpdate("ALTER TABLE games AUTO_INCREMENT = 1");
         } catch (SQLException error) {
             throw new DataAccessException("Error: failed to connect to database. ", error);
         }
@@ -47,10 +51,9 @@ public class MySqlDataAccess implements DataAccess {
 
     public void createUser(UserData userData) throws DataAccessException {
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        String json = new Gson().toJson(userData);
         String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
         try {
-            executeUpdate(statement, userData.username(), hashedPassword, userData.email(), json);
+            executeUpdate(statement, userData.username(), hashedPassword, userData.email());
         } catch (SQLException error) {
             throw new DataAccessException("Error: failed to connect to database. ", error);
         }
@@ -58,7 +61,7 @@ public class MySqlDataAccess implements DataAccess {
 
     public UserData getUser(String username) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, password FROM users WHERE username=?";
+            var statement = "SELECT * FROM users WHERE username=?";
             try (PreparedStatement ps = connection.prepareStatement(statement)) {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -78,7 +81,7 @@ public class MySqlDataAccess implements DataAccess {
 
     public void createGame(GameData gameData) throws DataAccessException {
         var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
-        String json = new Gson().toJson(gameData);
+        String json = new Gson().toJson(gameData.game());
         try {
             executeUpdate(
                     statement,
@@ -86,7 +89,6 @@ public class MySqlDataAccess implements DataAccess {
                     gameData.whiteUsername(),
                     gameData.blackUsername(),
                     gameData.gameName(),
-                    gameData.game(),
                     json);
         } catch (SQLException error) {
             throw new DataAccessException("Error: failed to connect to database. ", error);
@@ -106,7 +108,6 @@ public class MySqlDataAccess implements DataAccess {
                                 rs.getString("blackUsername"),
                                 rs.getString("gameName"),
                                 (ChessGame) rs.getObject("game"));
-                                // have a getString to get the json, convert to GameData instead?
                     }
                 }
             }
@@ -119,7 +120,7 @@ public class MySqlDataAccess implements DataAccess {
     public ArrayList<GameData> listGames() throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             ArrayList<GameData> gamesList = new ArrayList<>();
-            var statement = "SELECT gameID, gameName FROM games";
+            var statement = "SELECT * FROM games";
             try (PreparedStatement ps = connection.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -154,10 +155,9 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     public void createAuth(AuthData authData) throws DataAccessException {
-        var statement = "INSERT INTO auth (username, authToken) VALUES (?, ?)";
-        String json = new Gson().toJson(authData);
+        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
         try {
-            executeUpdate(statement, authData.username(), authData.authToken(), json);
+            executeUpdate(statement, authData.authToken(), authData.username());
         } catch (SQLException error) {
             throw new DataAccessException("Error: failed to connect to database. ", error);
         }
@@ -165,14 +165,14 @@ public class MySqlDataAccess implements DataAccess {
 
     public AuthData getAuth(String username) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, authToken FROM auth WHERE username=?";
+            var statement = "SELECT * FROM auth WHERE username=?";
             try (PreparedStatement ps = connection.prepareStatement(statement)) {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return new AuthData(
-                                rs.getString("authToken"),
-                                rs.getString("username"));
+                                rs.getString("username"),
+                                rs.getString("authToken"));
                     }
                 }
             }
@@ -208,7 +208,7 @@ public class MySqlDataAccess implements DataAccess {
 //        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
 //    }
 
-    private int executeUpdate(String statement, Object... params) throws SQLException, DataAccessException {
+    private void executeUpdate(String statement, Object... params) throws SQLException, DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
@@ -222,13 +222,6 @@ public class MySqlDataAccess implements DataAccess {
                     }
                 }
                 ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
             }
         } catch (SQLException error) {
             throw new DataAccessException("Error: failed to connect to database. ", error);
@@ -242,19 +235,17 @@ public class MySqlDataAccess implements DataAccess {
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS users (
-            `userID` INT NOT NULL AUTO_INCREMENT,
             `username` VARCHAR(256) NOT NULL UNIQUE,
             `password` CHAR(60) NOT NULL,
             `email` VARCHAR(256) NOT NULL,
-            PRIMARY KEY (`userID`)
+            PRIMARY KEY (`username`)
             )
             """,
             """
             CREATE TABLE IF NOT EXISTS auth (
-            `authID` INT NOT NULL AUTO_INCREMENT,
             `authToken` VARCHAR(256) NOT NULL,
             `username` VARCHAR(256) NOT NULL,
-            PRIMARY KEY (`authID`),
+            PRIMARY KEY (`authToken`),
             FOREIGN KEY (`username`) REFERENCES users(`username`)
             )
             """,
