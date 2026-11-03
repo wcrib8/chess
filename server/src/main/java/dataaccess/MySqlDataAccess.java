@@ -163,11 +163,11 @@ public class MySqlDataAccess implements DataAccess {
         }
     }
 
-    public AuthData getAuth(String username) throws DataAccessException {
+    public AuthData getAuth(String authToken) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM auth WHERE username=?";
+            var statement = "SELECT * FROM auth WHERE authToken=?";
             try (PreparedStatement ps = connection.prepareStatement(statement)) {
-                ps.setString(1, username);
+                ps.setString(1, authToken);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return new AuthData(
