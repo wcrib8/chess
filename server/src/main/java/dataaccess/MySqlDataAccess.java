@@ -17,29 +17,9 @@ public class MySqlDataAccess implements DataAccess {
     public MySqlDataAccess() throws DataAccessException, SQLException {
         configureDatabase();
     }
-    /**
-     * users table~
-     *      username(primary key), hashed password, email
-     *      username, UserData?
-
-     * auth table~
-     *      authToken(primary key), username
-     *      authToken, AuthData?
-
-     * game table~
-     *      gameID(primary key), whiteUsername, blackUsername, gameName, game
-     *      GameData?
-     */
-
-
-    // need helper for deserialization of chess pieces????????
 
     public void clear() throws DataAccessException {
         try {
-//            for (String table : tableNames) {
-//                var statement = "TRUNCATE " + table;
-//                executeUpdate(statement);
-//            }
             executeUpdate("TRUNCATE auth");
             executeUpdate("TRUNCATE games");
             executeUpdate("DELETE FROM users");
@@ -225,22 +205,6 @@ public class MySqlDataAccess implements DataAccess {
         return -1;
     }
 
-
-
-    void storeUserPassword(String username, String clearTextPassword) {
-        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
-
-        // Write the hashed password to the database along with the user's other information
-        //writeHashedPasswordToDatabase(username, hashedPassword);
-    }
-
-//    boolean verifyUser(String username, String providedClearTextPassword) {
-//        // Read the previously hashed password from the database
-//        var hashedPassword = readHashedPasswordFromDatabase(username);
-//
-//        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
-//    }
-
     private void executeUpdate(String statement, Object... params) throws SQLException, DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
@@ -260,10 +224,6 @@ public class MySqlDataAccess implements DataAccess {
             throw new DataAccessException("Error: failed to connect to database. ", error);
         }
     }
-
-    private final String[] tableNames = {
-            "users", "auth", "games"
-    };
 
     private final String[] createStatements = {
             """
@@ -296,7 +256,7 @@ public class MySqlDataAccess implements DataAccess {
             """
     };
 
-    private void configureDatabase() throws DataAccessException, SQLException {
+    private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection connection = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {

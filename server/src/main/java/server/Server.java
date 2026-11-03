@@ -16,7 +16,6 @@ import service.responses.*;
 public class Server {
 
     private final Javalin javalin;
-    //private final Service service = new Service(new MySqlDataAccess());
     private final Service service;
     {
         try {
@@ -41,9 +40,7 @@ public class Server {
                 .error(404, this::notFound);
     }
 
-
     // endpoint handler methods
-
     private void register(Context ctx) {
         try {
             RegisterRequest request = new Gson().fromJson(ctx.body(), RegisterRequest.class);

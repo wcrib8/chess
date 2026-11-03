@@ -123,12 +123,13 @@ public class Service {
     }
 
     private boolean checkUser(LoginRequest request, UserData user) {
+        boolean usernamesEqual = request.username().equals(user.username());
         if (dataAccess.getClass() == MySqlDataAccess.class) {
             var hashedPassword = user.password();
             var originalPassword = request.password();
-            return  !request.username().equals(user.username()) || !BCrypt.checkpw(originalPassword, hashedPassword);
+            return  !usernamesEqual || !BCrypt.checkpw(originalPassword, hashedPassword);
         } else {
-            return !request.username().equals(user.username()) || !request.password().equals(user.password());
+            return !usernamesEqual || !request.password().equals(user.password());
         }
     }
 }

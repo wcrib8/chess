@@ -4,7 +4,6 @@ import chess.ChessGame;
 import dataaccess.MySqlDataAccess;
 import org.junit.jupiter.api.*;
 
-import static java.lang.Integer.sum;
 import static org.junit.jupiter.api.Assertions.*;
 import model.*;
 import dataaccess.exceptions.*;
@@ -14,7 +13,6 @@ import java.sql.SQLException;
 class DatabaseTest {
     // setup objects
     private static MySqlDataAccess dataAccess;
-    UserData jojoNoPassword = new UserData("Jojo", null, "jojo@jojo");
     UserData jojo = new UserData("Jojo", "iLikeJojo", "jojo@jojo");
     AuthData jojoAuth = new AuthData("Jojo", "coolAuthToken");
     GameData egypt = new GameData(1, null, null, "battle", new ChessGame());
@@ -80,7 +78,7 @@ class DatabaseTest {
     }
 
     @Test
-    public void createGame() throws DataAccessException {
+    public void createGame() {
         assertDoesNotThrow(() -> dataAccess.createGame(egypt));
     }
 
