@@ -79,6 +79,22 @@ public class MySqlDataAccess implements DataAccess {
         return null;
     }
 
+    public int numUsers() throws DataAccessException {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            var statement = "SELECT COUNT(*) AS userCount FROM users";
+            try (PreparedStatement ps = connection.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getInt("userCount");
+                    }
+                }
+            }
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: failed to connect to database. ", error);
+        }
+        return -1;
+    }
+
     public void createGame(GameData gameData) throws DataAccessException {
         var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
         String json = new Gson().toJson(gameData.game());
@@ -191,6 +207,22 @@ public class MySqlDataAccess implements DataAccess {
         } catch (SQLException error) {
             throw new DataAccessException("Error: failed to connect to database. ", error);
         }
+    }
+
+    public int numAuth() throws DataAccessException {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            var statement = "SELECT COUNT(*) AS authCount FROM auth";
+            try (PreparedStatement ps = connection.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getInt("authCount");
+                    }
+                }
+            }
+        } catch (SQLException error) {
+            throw new DataAccessException("Error: failed to connect to database. ", error);
+        }
+        return -1;
     }
 
 
