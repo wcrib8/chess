@@ -4,6 +4,8 @@ import model.*;
 import service.requests.*;
 import service.responses.*;
 
+import java.net.http.HttpClient;
+
 public class ServerFacade {
 
     // http connection and communication with server
@@ -12,7 +14,10 @@ public class ServerFacade {
     // Setting the correct HTTP method (POST, GET, etc.).
     // Parsing the response.
     // Mapping HTTP error codes (like 401 or 403) into meaningful client-side exceptions.
+
     private final String serverUrl;
+    // HTTP Client for making requests
+    private static final HttpClient httpClient = HttpClient.newHttpClient();
 
     public ServerFacade(String serverUrl) {
         this.serverUrl = serverUrl;
