@@ -14,8 +14,9 @@ import model.responses.CreateGameResult;
 import model.responses.ListGamesResult;
 import model.responses.LoginResult;
 import model.responses.RegisterResult;
+import server.exceptions.BadRequestException;
+import server.exceptions.UnauthorizedException;
 import service.*;
-import service.exceptions.*;
 
 public class Server {
 

@@ -1,5 +1,6 @@
 package client;
 
+import model.requests.*;
 import model.responses.*;
 import server.ServerFacade;
 import ui.Repl;
@@ -46,7 +47,7 @@ public class Client {
         }
     }
 
-    private String help() {
+    private String help() { // no params check, prolly not important
         if (state == State.SIGNED_OUT) {
             return """
                 Available actions, type commands in the format shown:
@@ -69,8 +70,15 @@ public class Client {
 //        return null;
 //    }
 
-    private String register(String[] params) {
-        return null;
+    private String register(String[] params) throws Exception {
+        // already logged in check here?
+        if (params.length != 3) {
+            throw new Exception();
+        }
+        RegisterResult result = serverFacade.register(new RegisterRequest(params[0], params[1], params[2]));
+        authToken = result.authToken();
+        state = State.SIGNED_IN;
+        return "Registered user: " + params[0];
     }
 
     private String login(String[] params) throws Exception {
@@ -78,8 +86,8 @@ public class Client {
         if (params.length != 2) {
             throw new Exception(); // change exception?
         }
-        LoginResult result = serverFacade.login(params[0], params[1]);
-        authToken = result.authToken();
+        //LoginResult result = serverFacade.login(new LoginRequest(params[0], params[1]));
+        //authToken = result.authToken();
         state = State.SIGNED_IN;
         return "Logged in as " + params[0];
     }

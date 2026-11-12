@@ -9,8 +9,8 @@ import model.data.*;
 import model.requests.*;
 import model.responses.*;
 import org.mindrot.jbcrypt.BCrypt;
-import service.exceptions.BadRequestException;
-import service.exceptions.UnauthorizedException;
+import server.exceptions.BadRequestException;
+import server.exceptions.UnauthorizedException;
 
 import java.util.UUID;
 

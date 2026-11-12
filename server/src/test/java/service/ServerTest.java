@@ -8,8 +8,8 @@ import model.requests.*;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import service.exceptions.BadRequestException;
-import service.exceptions.UnauthorizedException;
+import server.exceptions.BadRequestException;
+import server.exceptions.UnauthorizedException;
 import dataaccess.exceptions.*;
 import model.responses.RegisterResult;
 
