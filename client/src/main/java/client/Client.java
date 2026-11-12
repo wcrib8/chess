@@ -72,8 +72,15 @@ public class Client {
         return null;
     }
 
-    private String login(String[] params) {
-        return null;
+    private String login(String[] params) throws Exception {
+        // already logged in check/ exception here?
+        if (params.length != 2) {
+            throw new Exception(); // change exception?
+        }
+        LoginResult result = serverFacade.login(params[0], params[1]);
+        authToken = result.authToken();
+        state = State.SIGNED_IN;
+        return "Logged in as " + params[0];
     }
 
     private String logout() {
