@@ -9,14 +9,15 @@ public class Client {
 
     // handle prelogin and postlogin states
 
-    // prelogin ui:
-    // handle help, quit, login, and register
-
-    // postlogin ui:
-    // handle help, logout, create game, list games, play game, and observe game
 
     private State state = State.SIGNED_OUT;
+    private String authToken = null;
     private final ServerFacade serverFacade;
+
+    public enum State {
+        SIGNED_OUT,
+        SIGNED_IN
+    }
 
     public Client(String serverUrl) {
         serverFacade = new ServerFacade(serverUrl);
@@ -29,7 +30,7 @@ public class Client {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (command) {
                 case "help" -> help();
-                case "quit" -> quit();
+                case "quit" -> "quit";
                 case "register" -> register(params);
                 case "login" -> login(params);
                 case "logout" -> logout();
@@ -45,13 +46,27 @@ public class Client {
     }
 
     private String help() {
-        //Repl.help();
-        return null;
+        if (state == State.SIGNED_OUT) {
+            return """
+                Available actions, type commands in the format shown:
+                  register <USERNAME> <PASSWORD> <EMAIL> : to create an account
+                  login <USERNAME> <PASSWORD> : to login to existing account
+                  quit : exit the chess application
+                  help : displays available actions""";
+        }
+        return """
+            Available actions, type commands in the format shown:
+              logout : sign out of your account
+              create <NAME> : create a new chess game
+              list : show a list of available games
+              play <ID> [WHITE|BLACK] : join a game with its ID and choose your team color
+              observe <ID> : spectate a game
+              help : displays available actions""";
     }
 
-    private String quit() {
-        return null;
-    }
+//    private String quit() {
+//        return null;
+//    }
 
     private String register(String[] params) {
         return null;
@@ -62,8 +77,18 @@ public class Client {
     }
 
     private String logout() {
-        return null;
+        //assertSignedIn();
+        //logout();
+        state = State.SIGNED_OUT;
+        return String.format("%s logged out", authToken); // change to username somehow? or just delete that part
     }
+
+//    public String signOut() throws ResponseException {
+//        assertSignedIn();
+//        ws.leavePetShop(visitorName);
+//        state = State.SIGNEDOUT;
+//        return String.format("%s left the shop", visitorName);
+//    }
 
     private String createGame() {
         return null;

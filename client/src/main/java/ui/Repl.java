@@ -3,7 +3,6 @@ package ui;
 import java.util.Scanner;
 
 import client.Client;
-import client.State;
 import static ui.EscapeSequences.*;
 
 public class Repl {
@@ -28,11 +27,12 @@ public class Repl {
             String prompt = scanner.nextLine();
             try {
                 result = client.evaluatePrompt(prompt);
-                System.out.print(result);
+                System.out.print(SET_TEXT_COLOR_GREEN + result);
             } catch (Exception error) { // different exception?
                 System.out.print(error.getMessage()); // something else?
             }
         }
+        System.out.println("Thanks for playing homeslice ^3^");
         // need an erase screen func?
         // print column letters
         //printColumnLetters("WHITE");
@@ -42,7 +42,7 @@ public class Repl {
     }
 
     public String help() {
-        if (state == State.SIGNED_OUT) {
+        //if (state == State.SIGNED_OUT) {
             return """
                     Available actions, type commands in the format shown: " +
                     + SET_TEXT_COLOR_BLUE + "register <USERNAME> <PASSWORD> <EMAIL> : to create an account
@@ -50,10 +50,10 @@ public class Repl {
               quit : exit the chess application2a
               help : displays available actions
             """;
-        }
-        return """
+        //}
+        //return """
                 
-                """;
+        //        """;
     }
 
     private void printColumnLetters(String teamColor) { // change from string to chessPiece, teamColor?
