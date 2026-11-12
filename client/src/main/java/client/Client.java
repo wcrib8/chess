@@ -72,8 +72,8 @@ public class Client {
 
     private String register(String[] params) throws Exception {
         // already logged in check here?
-        if (params.length != 3) {
-            throw new Exception();
+        if (params.length != 3 || state == State.SIGNED_IN) { // change signed in check to separate exception?
+            throw new Exception("bro wrong amount of paramssss duuude");
         }
         RegisterResult result = serverFacade.register(new RegisterRequest(params[0], params[1], params[2]));
         authToken = result.authToken();
@@ -86,8 +86,8 @@ public class Client {
         if (params.length != 2) {
             throw new Exception(); // change exception?
         }
-        //LoginResult result = serverFacade.login(new LoginRequest(params[0], params[1]));
-        //authToken = result.authToken();
+        LoginResult result = serverFacade.login(new LoginRequest(params[0], params[1]));
+        authToken = result.authToken();
         state = State.SIGNED_IN;
         return "Logged in as " + params[0];
     }
@@ -119,9 +119,11 @@ public class Client {
     }
 
     private String observeGame() {
+        //serverFacade.joinGame(new JoinGameRequest(authToken, "white", 9)); // change string and int
         return null;
     }
 
+    // need?
     public State getState() {
         return state;
     }

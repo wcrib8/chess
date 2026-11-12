@@ -41,21 +41,6 @@ public class Repl {
         //printColumnLetters("WHITE");
     }
 
-    public String help() {
-        //if (state == State.SIGNED_OUT) {
-            return """
-                    Available actions, type commands in the format shown: " +
-                    + SET_TEXT_COLOR_BLUE + "register <USERNAME> <PASSWORD> <EMAIL> : to create an account
-              login <USERNAME> <PASSWORD> : to login to existing account
-              quit : exit the chess application2a
-              help : displays available actions
-            """;
-        //}
-        //return """
-                
-        //        """;
-    }
-
     private void printColumnLetters(String teamColor) { // change from string to chessPiece, teamColor?
 
     }

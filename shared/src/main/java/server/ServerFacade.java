@@ -28,6 +28,7 @@ public class ServerFacade {
         this.serverUrl = serverUrl;
     }
 
+    // get rid of this clear method???
     public void clear() throws Exception {
         var request = buildRequest("DELETE", "/db", null);
         sendRequest(request);
@@ -39,11 +40,16 @@ public class ServerFacade {
         return handleResponse(response, RegisterResult.class);
     }
 
-//    public LoginResult login(LoginRequest request) {
-//        return null;
-//    }
+    public LoginResult login(LoginRequest loginRequest) throws Exception {
+        var request = buildRequest("POST", "/session", loginRequest);
+        var response = sendRequest(request);
+        return handleResponse(response, LoginResult.class);
+    }
 
-//    public void logout(LogoutRequest request) {}
+    public void logout(LogoutRequest logoutRequest) throws Exception {
+        var request = buildRequest("DELETE", "/session", logoutRequest);
+        sendRequest(request);
+    }
 
 //    public CreateGameResult createGame(CreateGameRequest request) {
 //        return null;
