@@ -1,15 +1,14 @@
 package server;
 
 import com.google.gson.Gson;
-import model.*;
-import service.requests.*;
-import service.responses.*;
 
 import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import model.requests.*;
+import model.responses.*;
 
 
 public class ServerFacade {

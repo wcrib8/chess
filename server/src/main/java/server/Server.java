@@ -9,10 +9,13 @@ import io.javalin.http.Context;
 import java.sql.SQLException;
 import java.util.Map;
 
+import model.requests.*;
+import model.responses.CreateGameResult;
+import model.responses.ListGamesResult;
+import model.responses.LoginResult;
+import model.responses.RegisterResult;
 import service.*;
 import service.exceptions.*;
-import service.requests.*;
-import service.responses.*;
 
 public class Server {
 

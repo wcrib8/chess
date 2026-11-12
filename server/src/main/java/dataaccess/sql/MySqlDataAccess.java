@@ -5,7 +5,9 @@ import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.DatabaseManager;
 import dataaccess.exceptions.*;
-import model.*;
+import model.data.AuthData;
+import model.data.GameData;
+import model.data.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;

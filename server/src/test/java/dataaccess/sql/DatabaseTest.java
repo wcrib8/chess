@@ -1,10 +1,13 @@
 package dataaccess.sql;
 
 import chess.ChessGame;
+import model.data.AuthData;
+import model.data.GameData;
+import model.data.UserData;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import model.*;
+
 import dataaccess.exceptions.*;
 import java.sql.SQLException;
 

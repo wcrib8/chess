@@ -1,5 +1,6 @@
 package client;
 
+import model.responses.*;
 import server.ServerFacade;
 import ui.Repl;
 

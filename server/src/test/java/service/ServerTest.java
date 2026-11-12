@@ -2,14 +2,16 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.MemoryDataAccess;
+import model.data.GameData;
+import model.data.UserData;
+import model.requests.*;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
-import model.*;
+
 import service.exceptions.BadRequestException;
 import service.exceptions.UnauthorizedException;
-import service.requests.*;
 import dataaccess.exceptions.*;
-import service.responses.RegisterResult;
+import model.responses.RegisterResult;
 
 class ServerTest {
     // instantiate objects for tests

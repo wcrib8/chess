@@ -5,12 +5,12 @@ import dataaccess.sql.MySqlDataAccess;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.DataAccess;
 import dataaccess.exceptions.DataAccessException;
-import model.*;
+import model.data.*;
+import model.requests.*;
+import model.responses.*;
 import org.mindrot.jbcrypt.BCrypt;
 import service.exceptions.BadRequestException;
 import service.exceptions.UnauthorizedException;
-import service.requests.*;
-import service.responses.*;
 
 import java.util.UUID;
 
