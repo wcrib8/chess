@@ -13,26 +13,15 @@ import model.responses.*;
 
 public class ServerFacade {
 
-    // http connection and communication with server
-    // Opening a connection to the server.
-    // Serializing the request body to JSON.
-    // Setting the correct HTTP method (POST, GET, etc.).
-    // Parsing the response.
     // Mapping HTTP error codes (like 401 or 403) into meaningful client-side exceptions.
 
     private final String serverUrl;
-    // HTTP Client for making requests
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     public ServerFacade(String serverUrl) {
         this.serverUrl = serverUrl;
     }
 
-    // get rid of this clear method???
-    public void clear() throws Exception {
-        var request = buildRequest("DELETE", "/db", null);
-        sendRequest(request);
-    }
 
     public RegisterResult register(RegisterRequest registerRequest) throws Exception {
         var request = buildRequest("POST", "/user", registerRequest);
@@ -51,15 +40,22 @@ public class ServerFacade {
         sendRequest(request);
     }
 
-//    public CreateGameResult createGame(CreateGameRequest request) {
-//        return null;
-//    }
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws Exception {
+        var request = buildRequest("POST", "/game", createGameRequest);
+        var response = sendRequest(request);
+        return handleResponse(response, CreateGameResult.class);
+    }
 
-//    public void joinGame(JoinGameRequest request) {}
+    public void joinGame(JoinGameRequest joinGameRequest) throws Exception {
+        var request = buildRequest("PUT", "/game", joinGameRequest);
+        sendRequest(request);
+    }
 
-//    public ListGamesResult listGames(ListGamesRequest request) {
-//        return null;
-//    }
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws Exception {
+        var request = buildRequest("GET", "/game", listGamesRequest);
+        var response = sendRequest(request);
+        return handleResponse(response, ListGamesResult.class);
+    }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
         var request = HttpRequest.newBuilder()
