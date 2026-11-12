@@ -17,9 +17,9 @@ public class ClientMain {
     public void main(String[] args) throws Exception {
         //var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         //System.out.println("♕ 240 Chess Client: " + piece);
-        System.out.println("♕ 240 Chess Client: Type help to get started.");
+        //System.out.println("♕ 240 Chess Client: Type help to get started.");   put in repl...?
         try {
-            repl.main();
+            repl.run();
         } catch(Exception error) {
             System.out.printf("Unable to start server: %s%n", error.getMessage());
         }

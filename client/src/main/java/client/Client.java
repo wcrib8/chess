@@ -1,6 +1,7 @@
 package client;
 
 import server.ServerFacade;
+import ui.Repl;
 
 import java.util.Arrays;
 
@@ -14,22 +15,19 @@ public class Client {
     // postlogin ui:
     // handle help, logout, create game, list games, play game, and observe game
 
-    private final ServerFacade server;
+    private State state = State.SIGNED_OUT;
+    private final ServerFacade serverFacade;
 
     public Client(String serverUrl) {
-        server = new ServerFacade(serverUrl);
+        serverFacade = new ServerFacade(serverUrl);
     }
 
-    public void run() {
-
-    }
-
-    public void evaluatePrompt(String prompt) {
+    public String evaluatePrompt(String prompt) {
         try {
             String[] tokens = prompt.toLowerCase().split(" ");
             String command = (tokens.length > 0) ? tokens[0] : prompt;
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            switch (command) {
+            return switch (command) {
                 case "help" -> help();
                 case "quit" -> quit();
                 case "register" -> register(params);
@@ -39,25 +37,51 @@ public class Client {
                 case "list" -> listGames();
                 case "play" -> playGame();
                 case "observe" -> observeGame();
-            }
-        } catch(Exception error) {
-            // call to repl?
+                default -> throw new Exception("Error: " + command + " is not an available option, type 'help' to see options.");
+            };
+        } catch(Exception error) { // change to specific exception?
+            return error.getMessage();
         }
     }
 
-    private void help() {
-
+    private String help() {
+        //Repl.help();
+        return null;
     }
 
-    private void quit() {
-
+    private String quit() {
+        return null;
     }
 
-    private void register(String[] params) {
-
+    private String register(String[] params) {
+        return null;
     }
 
-    private void login(String[] params) {
+    private String login(String[] params) {
+        return null;
+    }
 
+    private String logout() {
+        return null;
+    }
+
+    private String createGame() {
+        return null;
+    }
+
+    private String listGames() {
+        return null;
+    }
+
+    private String playGame() {
+        return null;
+    }
+
+    private String observeGame() {
+        return null;
+    }
+
+    public State getState() {
+        return state;
     }
 }
