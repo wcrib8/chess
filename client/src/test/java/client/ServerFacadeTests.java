@@ -1,11 +1,13 @@
 package client;
 
+import client.exceptions.InvalidInputException;
 import model.requests.*;
 import model.responses.*;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import server.Server;
 import server.ServerFacade;
+import server.exceptions.UnauthorizedException;
 
 import java.lang.reflect.Array;
 
@@ -28,10 +30,10 @@ public class ServerFacadeTests {
         server.stop();
     }
 
-//    @BeforeEach
-//    static void clear() {
-//        server.clear();
-//    }
+    @BeforeEach
+    void clear() throws Exception {
+        facade.clear();
+    }
 
 
     @Test
@@ -41,8 +43,51 @@ public class ServerFacadeTests {
 
     @Test
     public void registerSuccess() {
-        //var response = client.register(new Array["wolf", "wolf", "wolf"]);
         assertDoesNotThrow(() -> facade.register(new RegisterRequest("wolf", "wolf", "wolf")));
+        //server.service.dataAccess.numUsers()
+    }
+
+    @Test
+    public String loginSuccess() throws Exception {
+        registerSuccess();
+        LoginResult result = facade.login(new LoginRequest("wolf", "wolf"));
+        assertNotNull(result);
+        return result.authToken();
+    }
+
+    @Test
+    public void logoutSuccess() throws Exception {
+        String auth = loginSuccess();
+        assertDoesNotThrow(() -> facade.logout(new LogoutRequest(auth)));
+    }
+
+    @Test
+    public void createGameSuccess() throws Exception {
+        String auth = loginSuccess();
+        assertDoesNotThrow(() -> facade.createGame(new CreateGameRequest(auth, "fun")));
+    }
+
+    @Test
+    public void listGamesSuccess() throws Exception {
+        String auth = loginSuccess();
+        assertDoesNotThrow(() -> facade.listGames(new ListGamesRequest(auth)));
+        ListGamesResult result1 = facade.listGames(new ListGamesRequest(auth));
+        facade.createGame(new CreateGameRequest(auth, "fun"));
+        ListGamesResult result2 = facade.listGames(new ListGamesRequest(auth));
+        assertTrue(result1.games().size() < result2.games().size());
+    }
+
+    @Test
+    public void listGamesUnsuccessful() {
+        assertThrows(Exception.class, () -> facade.listGames(new ListGamesRequest("badAuthToken")));
+    }
+
+    @Test
+    public void joinGameSuccess() throws Exception {
+        String auth = loginSuccess();
+        //assertThrows(Exception.class, () -> facade.joinGame(new JoinGameRequest(auth, "white", 1)));
+        facade.createGame(new CreateGameRequest(auth, "fun"));
+        assertDoesNotThrow(() -> facade.joinGame(new JoinGameRequest(auth, "white", 1)));
     }
 
 }

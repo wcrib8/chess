@@ -45,6 +45,7 @@ public class Client {
     private String evaluatePromptSignedIn(String command, String[] params) {
         try {
             return switch (command) {
+                case "help" -> help(params);
                 case "logout" -> logout(params);
                 case "create" -> createGame(params);
                 case "list" -> listGames(params);
@@ -149,8 +150,6 @@ public class Client {
         }
         serverFacade.joinGame(new JoinGameRequest(authToken, params[1], gameID));
 
-        // draw initial chess board
-
         state = State.GAME;
         teamColor = params[1];
         return String.format("joined game %s as team %s", params[0], params[1]);
@@ -161,8 +160,6 @@ public class Client {
             throw new InvalidInputException("Error: observe only needs the ID of the game you want to spectate");
         }
         serverFacade.joinGame(new JoinGameRequest(authToken, null, parseInt(params[0]))); // change string and int
-
-        // draw initial chess board
 
         state = State.GAME;
         teamColor = "spectator";
@@ -180,16 +177,4 @@ public class Client {
     public String getTeamColor() {
         return teamColor;
     }
-
-//    private void assertSignedIn() throws InvalidInputException {
-//        if (state != State.SIGNED_IN) {
-//            throw new InvalidInputException("Error: you must register or log in first");
-//        }
-//    }
-//
-//    private void assertSignedOut() throws InvalidInputException {
-//        if (state != State.SIGNED_OUT) {
-//            throw new InvalidInputException("Error: you must logout first");
-//        }
-//    }  not used anymore...?
 }

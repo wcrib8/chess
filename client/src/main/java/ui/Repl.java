@@ -2,6 +2,8 @@ package ui;
 
 import java.util.Scanner;
 
+import chess.ChessBoard;
+import chess.ChessPosition;
 import client.Client;
 import client.State;
 
@@ -37,9 +39,10 @@ public class Repl {
         }
     }
 
-    public void gameLoop(Scanner scanner) {
-        printBoard();
+    public void gameLoop(Scanner scanner, ChessBoard board) {
+        printBoard(board);
         System.out.print("\njust printing board for phase 5 purposes. more to come\n");
+        client.changeState();
         // have a while in game loop
     }
 
@@ -49,50 +52,45 @@ public class Repl {
 
     private void checkIfInGame(Scanner scanner) {
         if (client.getState() == State.GAME) {
-            gameLoop(scanner);
+            gameLoop(scanner, new ChessBoard());
         }
-        client.changeState();
     }
 
-    private void printBoard() {
+    private void printBoard(ChessBoard board) {
         // spectator will observe from white perspective? for now
         boolean isBlackTeam = client.getTeamColor().equalsIgnoreCase("black");
+        board.resetBoard();
         System.out.print(SET_TEXT_COLOR_BLACK);
         printColumnLetters(isBlackTeam);
-        printRows(isBlackTeam);
+        printAllRows(isBlackTeam, board);
         printColumnLetters(isBlackTeam);
         System.out.print(RESET_TEXT_COLOR);
 
         // need an erase screen func?
-        // print column letters
-        //printColumnLetters("WHITE");
-        // print row numbers and board
-        // print column letters again
-        //printColumnLetters("WHITE");
     }
 
     private void printColumnLetters(boolean isBlackTeam) {
         if (isBlackTeam) {
-            System.out.print("\n" + SET_BG_COLOR_MAGENTA + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR);
+            System.out.print("\n" + SET_BG_COLOR_MAGENTA + "     a   b   c   d   e   f   g   h     " + RESET_BG_COLOR);
         }
         else {
-            System.out.print("\n" + SET_BG_COLOR_MAGENTA + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR);
+            System.out.print("\n" + SET_BG_COLOR_MAGENTA + "     a   b   c   d   e   f   g   h     " + RESET_BG_COLOR);
         }
     }
 
-    private void printRows(boolean isBlackTeam) {
+    private void printAllRows(boolean isBlackTeam, ChessBoard board) {
         if (isBlackTeam) {
             for (int row = 1; row < 9; row++) {
                 System.out.print("\n");
                 printRowNumber(row);
-                printChessRow(row);
+                printChessRow(row, isBlackTeam, board);
                 printRowNumber(row);
             }
         }
         for (int row = 8; row > 0; row--) {
             System.out.print("\n");
             printRowNumber(row);
-            printChessRow(row);
+            printChessRow(row, isBlackTeam, board);
             printRowNumber(row);
         }
     }
@@ -101,20 +99,57 @@ public class Repl {
         System.out.print(SET_BG_COLOR_MAGENTA + " " + row + " " + RESET_BG_COLOR);
     }
 
-    private void printChessRow(int row) {
-        if (row % 2 == 0) {
-            System.out.print(SET_BG_COLOR_BLUE + "   " + SET_BG_COLOR_LIGHT_GREY + "   " +
-                    SET_BG_COLOR_BLUE + "   " + SET_BG_COLOR_LIGHT_GREY + "   " +
-                    SET_BG_COLOR_BLUE + "   " + SET_BG_COLOR_LIGHT_GREY + "   " +
-                    SET_BG_COLOR_BLUE + "   " + SET_BG_COLOR_LIGHT_GREY + "   " +
-                    RESET_BG_COLOR);
+    private void printChessRow(int row, boolean isBlackTeam, ChessBoard board) {
+        for (int column = 1; column < 9; column++) {
+            printBoardBackground(row, column, isBlackTeam);
+            printBoardPiece(row, column, isBlackTeam, board);
+        }
+    }
+
+    private void printBoardBackground(int row, int column, boolean isBlackTeam) {
+        if (isBlackTeam) {
+            if ((row + column) % 2 == 0) {
+                System.out.print(SET_BG_COLOR_BLUE);
+            }
+            else {
+                System.out.print(SET_BG_COLOR_LIGHT_GREY);
+            }
+        }
+        else if ((row + column) % 2 == 0) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY);
         }
         else {
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + "   " +
-                    SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + "   " +
-                    SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + "   " +
-                    SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + "   " +
-                    RESET_BG_COLOR);
+            System.out.print(SET_BG_COLOR_BLUE);
+        }
+    }
+
+    private void printBoardPiece(int row, int column, boolean isBlackTeam, ChessBoard board) {
+        // find what piece it is, print out that character
+        ChessPosition position = new ChessPosition(row, column);
+        if (board.getPiece(position) == null) {
+            System.out.print(EMPTY);
+            return;
+        }
+        if (isBlackTeam) {
+            switch (board.getPiece(position).getPieceType()) {
+                case PAWN -> System.out.print(BLACK_PAWN);
+                case ROOK -> System.out.print(BLACK_ROOK);
+                case KNIGHT -> System.out.print(BLACK_KNIGHT);
+                case BISHOP -> System.out.print(BLACK_BISHOP);
+                case QUEEN -> System.out.print(BLACK_QUEEN);
+                case KING -> System.out.print(BLACK_KING);
+                default -> System.out.print(EMPTY);
+            };
+        } else {
+            switch (board.getPiece(position).getPieceType()) {
+                case PAWN -> System.out.print(WHITE_PAWN);
+                case ROOK -> System.out.print(WHITE_ROOK);
+                case KNIGHT -> System.out.print(WHITE_KNIGHT);
+                case BISHOP -> System.out.print(WHITE_BISHOP);
+                case QUEEN -> System.out.print(WHITE_QUEEN);
+                case KING -> System.out.print(WHITE_KING);
+                default -> System.out.print(EMPTY);
+            };
         }
     }
 }

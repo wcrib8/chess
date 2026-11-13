@@ -9,6 +9,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import model.requests.*;
 import model.responses.*;
+import server.exceptions.UnauthorizedException;
 
 
 public class ServerFacade {
@@ -22,9 +23,10 @@ public class ServerFacade {
         this.serverUrl = serverUrl;
     }
 
-//    public void clear() {
-//        var request = buildRequest("POST", "/user", registerRequest, null);
-//    }
+    public void clear() throws Exception {
+        var request = buildRequest("DELETE", "/db", null, null);
+        sendRequest(request);
+    }
 
 
     public RegisterResult register(RegisterRequest registerRequest) throws Exception {
@@ -86,7 +88,9 @@ public class ServerFacade {
     private HttpResponse<String> sendRequest(HttpRequest request) throws Exception {
         try {
             return httpClient.send(request, BodyHandlers.ofString());
-        } catch (Exception error) {
+        //} catch(UnauthorizedException error) {
+
+        } catch(Exception error) {
             throw new Exception(error.getMessage());
         }
     }
@@ -95,6 +99,7 @@ public class ServerFacade {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
             var body = response.body();
+            //var auth = response.header("authorization");
             if (body != null) {
                 throw new Exception("Error: " + "status: " + status + " received this json body: " + body);
             }
