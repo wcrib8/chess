@@ -11,12 +11,7 @@ public class Client {
     private State state = State.SIGNED_OUT;
     private String authToken = null;
     private final ServerFacade serverFacade;
-
-    public enum State {
-        SIGNED_OUT,
-        SIGNED_IN,
-        GAME
-    }
+    private String teamColor = null;
 
     public Client(String serverUrl) {
         serverFacade = new ServerFacade(serverUrl);
@@ -64,37 +59,7 @@ public class Client {
 
     private String evaluatePromptGame(String command, String[] params) {
         try {
-//            return switch (command) {
-//                case "logout" -> logout(params);
-//                case "create" -> createGame(params);
-//                case "list" -> listGames(params);
-//                case "play" -> playGame(params);
-//                case "observe" -> observeGame(params);
-//                default -> throw new InvalidInputException("Error: " + command + " is not an available option, type 'help' to see options.");
-//            };
             return ""; // change to game functionality later for phase 6
-        } catch(Exception error) {
-            return error.getMessage();
-        }
-    }
-
-    public String evaluatePrompt(String prompt) {
-        try {
-            String[] tokens = prompt.toLowerCase().split(" ");
-            String command = (tokens.length > 0) ? tokens[0] : prompt;
-            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (command) {
-                case "help" -> help(params);
-                case "quit" -> "quitting, thanks for playing homeslice ^3^";
-                case "register" -> register(params);
-                case "login" -> login(params);
-                case "logout" -> logout(params);
-                case "create" -> createGame(params);
-                case "list" -> listGames(params);
-                case "play" -> playGame(params);
-                case "observe" -> observeGame(params);
-                default -> throw new InvalidInputException("Error: " + command + " is not an available option, type 'help' to see options.");
-            };
         } catch(Exception error) {
             return error.getMessage();
         }
@@ -123,7 +88,6 @@ public class Client {
     }
 
     public String register(String[] params) throws Exception {
-        assertSignedOut();
         if (params.length != 3) {
             throw new InvalidInputException("Error: register needs username, password, and email separated by one space");
         }
@@ -134,7 +98,6 @@ public class Client {
     }
 
     public String login(String[] params) throws Exception {
-        assertSignedOut();
         if (params.length != 2) {
             throw new InvalidInputException("Error: login needs username and password separated by one space");
         }
@@ -145,17 +108,15 @@ public class Client {
     }
 
     public String logout(String[] params) throws Exception {
-        assertSignedIn();
         if (params.length != 0) {
             throw new InvalidInputException("Error: logout requires no extra inputs, just type 'logout'");
         }
-        serverFacade.logout(new LogoutRequest(authToken)); // authtoken stuff...???
+        serverFacade.logout(new LogoutRequest(authToken));
         state = State.SIGNED_OUT;
         return "logged out";
     }
 
     public String createGame(String[] params) throws Exception {
-        assertSignedIn();
         if (params.length != 1) {
             throw new InvalidInputException("Error: create takes one word for the name of your chess game after 'create' and a space");
         }
@@ -164,7 +125,6 @@ public class Client {
     }
 
     public String listGames(String[] params) throws Exception {
-        assertSignedIn();
         if (params.length != 0) {
             throw new InvalidInputException("Error: list requires no extra inputs, just type 'list'");
         }
@@ -177,10 +137,7 @@ public class Client {
         return String.valueOf(gameList);
     }
 
-    // when both teams have joined, the game should not allow anymore people to join, only observe?
-    // should transition to next repl
     public String playGame(String[] params) throws Exception {
-        assertSignedIn();
         if (params.length != 2) {
             throw new InvalidInputException("Error: play needs the chosen game's ID and then the chosen team color separated by a space");
         }
@@ -194,12 +151,12 @@ public class Client {
 
         // draw initial chess board
 
-        //state = State.GAME; // later for phase 6
-        return String.format("joined game %s as team %s", "lol", params[1]);// get game name??
+        state = State.GAME;
+        teamColor = params[1];
+        return String.format("joined game %s as team %s", params[0], params[1]);
     }
 
     public String observeGame(String[] params) throws Exception {
-        assertSignedIn();
         if (params.length != 1) {
             throw new InvalidInputException("Error: observe only needs the ID of the game you want to spectate");
         }
@@ -207,23 +164,28 @@ public class Client {
 
         // draw initial chess board
 
-        //state = State.GAME; // later for phase 6
-        return String.format("spectating game: %s", params[0]); // get game name??????
+        state = State.GAME;
+        teamColor = "spectator";
+        return String.format("spectating game %s", params[0]);
     }
 
     public State getState() {
         return state;
     }
 
-    private void assertSignedIn() throws InvalidInputException {
-        if (state != State.SIGNED_IN) {
-            throw new InvalidInputException("Error: you must register or log in first");
-        }
+    public String getTeamColor() {
+        return teamColor;
     }
 
-    private void assertSignedOut() throws InvalidInputException {
-        if (state != State.SIGNED_OUT) {
-            throw new InvalidInputException("Error: you must logout first");
-        }
-    }
+//    private void assertSignedIn() throws InvalidInputException {
+//        if (state != State.SIGNED_IN) {
+//            throw new InvalidInputException("Error: you must register or log in first");
+//        }
+//    }
+//
+//    private void assertSignedOut() throws InvalidInputException {
+//        if (state != State.SIGNED_OUT) {
+//            throw new InvalidInputException("Error: you must logout first");
+//        }
+//    }  not used anymore...?
 }
