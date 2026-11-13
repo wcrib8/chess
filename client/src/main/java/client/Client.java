@@ -5,23 +5,77 @@ import model.requests.*;
 import model.responses.*;
 import server.ServerFacade;
 import java.util.Arrays;
+import static java.lang.Integer.parseInt;
 
 public class Client {
-
-    // handle prelogin and postlogin states
-
-
     private State state = State.SIGNED_OUT;
     private String authToken = null;
     private final ServerFacade serverFacade;
 
     public enum State {
         SIGNED_OUT,
-        SIGNED_IN
+        SIGNED_IN,
+        GAME
     }
 
     public Client(String serverUrl) {
         serverFacade = new ServerFacade(serverUrl);
+    }
+
+    public String evaluateState(String prompt) {
+        String[] tokens = prompt.toLowerCase().split(" ");
+        String command = (tokens.length > 0) ? tokens[0] : prompt;
+        String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+        return switch (state) {
+            case SIGNED_IN -> evaluatePromptSignedIn(command, params);
+            case GAME -> evaluatePromptGame(command, params);
+            default -> evaluatePromptSignedOut(command, params);
+        };
+    }
+
+    private String evaluatePromptSignedOut(String command, String[] params) {
+        try {
+            return switch (command) {
+                case "help" -> help(params);
+                case "quit" -> "quitting, thanks for playing homeslice ^3^";
+                case "register" -> register(params);
+                case "login" -> login(params);
+                default -> throw new InvalidInputException("Error: " + command + " is not an available option, type 'help' to see options.");
+            };
+        } catch(Exception error) {
+            return error.getMessage();
+        }
+    }
+
+    private String evaluatePromptSignedIn(String command, String[] params) {
+        try {
+            return switch (command) {
+                case "logout" -> logout(params);
+                case "create" -> createGame(params);
+                case "list" -> listGames(params);
+                case "play" -> playGame(params);
+                case "observe" -> observeGame(params);
+                default -> throw new InvalidInputException("Error: " + command + " is not an available option, type 'help' to see options.");
+            };
+        } catch(Exception error) {
+            return error.getMessage();
+        }
+    }
+
+    private String evaluatePromptGame(String command, String[] params) {
+        try {
+//            return switch (command) {
+//                case "logout" -> logout(params);
+//                case "create" -> createGame(params);
+//                case "list" -> listGames(params);
+//                case "play" -> playGame(params);
+//                case "observe" -> observeGame(params);
+//                default -> throw new InvalidInputException("Error: " + command + " is not an available option, type 'help' to see options.");
+//            };
+            return ""; // change to game functionality later for phase 6
+        } catch(Exception error) {
+            return error.getMessage();
+        }
     }
 
     public String evaluatePrompt(String prompt) {
@@ -46,7 +100,7 @@ public class Client {
         }
     }
 
-    private String help(String[] params) throws Exception { // no params check, prolly not important
+    public String help(String[] params) throws Exception { // no params check, prolly not important
         if (params.length != 0) {
             throw new InvalidInputException("Error: help requires no extra inputs, just type 'help'");
         }
@@ -68,7 +122,7 @@ public class Client {
               help : displays available actions""";
     }
 
-    private String register(String[] params) throws Exception {
+    public String register(String[] params) throws Exception {
         assertSignedOut();
         if (params.length != 3) {
             throw new InvalidInputException("Error: register needs username, password, and email separated by one space");
@@ -79,7 +133,7 @@ public class Client {
         return "Registered user: " + params[0];
     }
 
-    private String login(String[] params) throws Exception {
+    public String login(String[] params) throws Exception {
         assertSignedOut();
         if (params.length != 2) {
             throw new InvalidInputException("Error: login needs username and password separated by one space");
@@ -90,55 +144,71 @@ public class Client {
         return "Logged in as " + params[0];
     }
 
-    private String logout(String[] params) throws Exception {
+    public String logout(String[] params) throws Exception {
         assertSignedIn();
         if (params.length != 0) {
             throw new InvalidInputException("Error: logout requires no extra inputs, just type 'logout'");
         }
-        assertSignedIn();
         serverFacade.logout(new LogoutRequest(authToken)); // authtoken stuff...???
         state = State.SIGNED_OUT;
-        return String.format("%s logged out", authToken); // change to username somehow? or just delete that part
+        return "logged out";
     }
 
-    private String createGame(String[] params) throws Exception {
+    public String createGame(String[] params) throws Exception {
         assertSignedIn();
         if (params.length != 1) {
             throw new InvalidInputException("Error: create takes one word for the name of your chess game after 'create' and a space");
         }
         CreateGameResult result = serverFacade.createGame(new CreateGameRequest(authToken, params[0]));
-        return String.format("Joined game %s", params[0]);
+        return String.format("Created game %s", params[0]);
     }
 
-    private String listGames(String[] params) throws Exception {
+    public String listGames(String[] params) throws Exception {
         assertSignedIn();
         if (params.length != 0) {
             throw new InvalidInputException("Error: list requires no extra inputs, just type 'list'");
         }
         ListGamesResult result = serverFacade.listGames(new ListGamesRequest(authToken));
+        StringBuilder gameList = new StringBuilder();
         for (int gameNum=0; gameNum < result.games().size(); gameNum++) {
-            // add number
-            // add game name
+            // add number and game name
+            gameList.append(gameNum+1).append(". ").append(result.games().get(gameNum).gameName()).append("\n");
         }
-        return String.format(""); // list game names?
-        // number list, just 1 to whatever, not game ids, then game name?
+        return String.valueOf(gameList);
     }
 
-    private String playGame(String[] params) throws Exception {
+    // when both teams have joined, the game should not allow anymore people to join, only observe?
+    // should transition to next repl
+    public String playGame(String[] params) throws Exception {
         assertSignedIn();
-        if (params.length != 2) { // need check for correct word, black/white? or already done in service?
+        if (params.length != 2) {
             throw new InvalidInputException("Error: play needs the chosen game's ID and then the chosen team color separated by a space");
         }
-        return null;
+        int gameID;
+        try {
+            gameID = parseInt(params[0]);
+        } catch(Exception error) {
+            throw new InvalidInputException("Error: gameID is specified first, and should only be a number separated by spaces");
+        }
+        serverFacade.joinGame(new JoinGameRequest(authToken, params[1], gameID));
+
+        // draw initial chess board
+
+        //state = State.GAME; // later for phase 6
+        return String.format("joined game %s as team %s", "lol", params[1]);// get game name??
     }
 
-    private String observeGame(String[] params) throws Exception {
+    public String observeGame(String[] params) throws Exception {
         assertSignedIn();
         if (params.length != 1) {
             throw new InvalidInputException("Error: observe only needs the ID of the game you want to spectate");
         }
-        //serverFacade.joinGame(new JoinGameRequest(authToken, "white", 9)); // change string and int
-        return null;
+        serverFacade.joinGame(new JoinGameRequest(authToken, null, parseInt(params[0]))); // change string and int
+
+        // draw initial chess board
+
+        //state = State.GAME; // later for phase 6
+        return String.format("spectating game: %s", params[0]); // get game name??????
     }
 
     public State getState() {

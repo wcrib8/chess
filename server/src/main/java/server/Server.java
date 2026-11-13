@@ -152,7 +152,7 @@ public class Server {
         }
     }
 
-    private void clear(Context ctx) {
+    public void clear(Context ctx) {
         try {
             service.clear();
             ctx.status(200);

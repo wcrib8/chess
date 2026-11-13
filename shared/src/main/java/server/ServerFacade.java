@@ -22,47 +22,55 @@ public class ServerFacade {
         this.serverUrl = serverUrl;
     }
 
+//    public void clear() {
+//        var request = buildRequest("POST", "/user", registerRequest, null);
+//    }
+
 
     public RegisterResult register(RegisterRequest registerRequest) throws Exception {
-        var request = buildRequest("POST", "/user", registerRequest);
+        var request = buildRequest("POST", "/user", registerRequest, null);
         var response = sendRequest(request);
         return handleResponse(response, RegisterResult.class);
     }
 
     public LoginResult login(LoginRequest loginRequest) throws Exception {
-        var request = buildRequest("POST", "/session", loginRequest);
+        var request = buildRequest("POST", "/session", loginRequest, null);
         var response = sendRequest(request);
         return handleResponse(response, LoginResult.class);
     }
 
     public void logout(LogoutRequest logoutRequest) throws Exception {
-        var request = buildRequest("DELETE", "/session", logoutRequest);
+        var request = buildRequest("DELETE", "/session", logoutRequest, logoutRequest.authToken());
         sendRequest(request);
+        // should handle....?
     }
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws Exception {
-        var request = buildRequest("POST", "/game", createGameRequest);
+        var request = buildRequest("POST", "/game", createGameRequest, createGameRequest.authToken());
         var response = sendRequest(request);
         return handleResponse(response, CreateGameResult.class);
     }
 
     public void joinGame(JoinGameRequest joinGameRequest) throws Exception {
-        var request = buildRequest("PUT", "/game", joinGameRequest);
+        var request = buildRequest("PUT", "/game", joinGameRequest, joinGameRequest.authToken());
         sendRequest(request);
     }
 
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws Exception {
-        var request = buildRequest("GET", "/game", listGamesRequest);
+        var request = buildRequest("GET", "/game", listGamesRequest, listGamesRequest.authToken());
         var response = sendRequest(request);
         return handleResponse(response, ListGamesResult.class);
     }
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
+        }
+        if (authToken != null) {
+            request.setHeader("authorization", authToken);
         }
         return request.build();
     }
@@ -79,7 +87,7 @@ public class ServerFacade {
         try {
             return httpClient.send(request, BodyHandlers.ofString());
         } catch (Exception error) {
-            throw new Exception(error.getMessage()); // change...?
+            throw new Exception(error.getMessage());
         }
     }
 
@@ -88,10 +96,9 @@ public class ServerFacade {
         if (!isSuccessful(status)) {
             var body = response.body();
             if (body != null) {
-                throw new Exception(body); // change
+                throw new Exception("Error: " + "status: " + status + " received this json body: " + body);
             }
-
-            throw new Exception(); // change
+            throw new Exception("Error: status: " + status + " with null body");
         }
 
         if (responseClass != null) {

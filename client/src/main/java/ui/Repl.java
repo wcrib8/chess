@@ -16,8 +16,7 @@ public class Repl {
     public Repl() {}
 
     // 3 repl loops, prelogin, postlogin, and game
-    // have scanner to read input, but maybe not here in this class??
-    public void run() {  // repl has scanner read loop. it calls into client to evaluate the scanned line
+    public void run() {
         System.out.println("♕ 240 Chess Client: Type 'help' to get started.");
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -28,8 +27,9 @@ public class Repl {
             try {
                 result = client.evaluatePrompt(prompt);
                 System.out.print(SET_TEXT_COLOR_GREEN + result);
-            } catch (Exception error) { // different exception?
-                System.out.print(error.getMessage()); // something else?
+                // if play or observe, send to another loop?
+            } catch (Exception error) {
+                System.out.print(error.getMessage());
             }
         }
 
