@@ -1,10 +1,9 @@
 package client;
 
+import client.exceptions.InvalidInputException;
 import model.requests.*;
 import model.responses.*;
 import server.ServerFacade;
-import ui.Repl;
-
 import java.util.Arrays;
 
 public class Client {
@@ -31,23 +30,26 @@ public class Client {
             String command = (tokens.length > 0) ? tokens[0] : prompt;
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (command) {
-                case "help" -> help();
-                case "quit" -> "quit";
+                case "help" -> help(params);
+                case "quit" -> "quitting, thanks for playing homeslice ^3^";
                 case "register" -> register(params);
                 case "login" -> login(params);
-                case "logout" -> logout();
-                case "create" -> createGame();
-                case "list" -> listGames();
-                case "play" -> playGame();
-                case "observe" -> observeGame();
-                default -> throw new Exception("Error: " + command + " is not an available option, type 'help' to see options.");
+                case "logout" -> logout(params);
+                case "create" -> createGame(params);
+                case "list" -> listGames(params);
+                case "play" -> playGame(params);
+                case "observe" -> observeGame(params);
+                default -> throw new InvalidInputException("Error: " + command + " is not an available option, type 'help' to see options.");
             };
-        } catch(Exception error) { // change to specific exception?
+        } catch(Exception error) {
             return error.getMessage();
         }
     }
 
-    private String help() { // no params check, prolly not important
+    private String help(String[] params) throws Exception { // no params check, prolly not important
+        if (params.length != 0) {
+            throw new InvalidInputException("Error: help requires no extra inputs, just type 'help'");
+        }
         if (state == State.SIGNED_OUT) {
             return """
                 Available actions, type commands in the format shown:
@@ -66,14 +68,10 @@ public class Client {
               help : displays available actions""";
     }
 
-//    private String quit() {
-//        return null;
-//    }
-
     private String register(String[] params) throws Exception {
-        // already logged in check here?
-        if (params.length != 3 || state == State.SIGNED_IN) { // change signed in check to separate exception?
-            throw new Exception("bro wrong amount of paramssss duuude");
+        assertSignedOut();
+        if (params.length != 3) {
+            throw new InvalidInputException("Error: register needs username, password, and email separated by one space");
         }
         RegisterResult result = serverFacade.register(new RegisterRequest(params[0], params[1], params[2]));
         authToken = result.authToken();
@@ -82,9 +80,9 @@ public class Client {
     }
 
     private String login(String[] params) throws Exception {
-        // already logged in check/ exception here?
+        assertSignedOut();
         if (params.length != 2) {
-            throw new Exception(); // change exception?
+            throw new InvalidInputException("Error: login needs username and password separated by one space");
         }
         LoginResult result = serverFacade.login(new LoginRequest(params[0], params[1]));
         authToken = result.authToken();
@@ -92,39 +90,70 @@ public class Client {
         return "Logged in as " + params[0];
     }
 
-    private String logout() {
-        //assertSignedIn();
-        //logout();
+    private String logout(String[] params) throws Exception {
+        assertSignedIn();
+        if (params.length != 0) {
+            throw new InvalidInputException("Error: logout requires no extra inputs, just type 'logout'");
+        }
+        assertSignedIn();
+        serverFacade.logout(new LogoutRequest(authToken)); // authtoken stuff...???
         state = State.SIGNED_OUT;
         return String.format("%s logged out", authToken); // change to username somehow? or just delete that part
     }
 
-//    public String signOut() throws ResponseException {
-//        assertSignedIn();
-//        ws.leavePetShop(visitorName);
-//        state = State.SIGNEDOUT;
-//        return String.format("%s left the shop", visitorName);
-//    }
+    private String createGame(String[] params) throws Exception {
+        assertSignedIn();
+        if (params.length != 1) {
+            throw new InvalidInputException("Error: create takes one word for the name of your chess game after 'create' and a space");
+        }
+        CreateGameResult result = serverFacade.createGame(new CreateGameRequest(authToken, params[0]));
+        return String.format("Joined game %s", params[0]);
+    }
 
-    private String createGame() {
+    private String listGames(String[] params) throws Exception {
+        assertSignedIn();
+        if (params.length != 0) {
+            throw new InvalidInputException("Error: list requires no extra inputs, just type 'list'");
+        }
+        ListGamesResult result = serverFacade.listGames(new ListGamesRequest(authToken));
+        for (int gameNum=0; gameNum < result.games().size(); gameNum++) {
+            // add number
+            // add game name
+        }
+        return String.format(""); // list game names?
+        // number list, just 1 to whatever, not game ids, then game name?
+    }
+
+    private String playGame(String[] params) throws Exception {
+        assertSignedIn();
+        if (params.length != 2) { // need check for correct word, black/white? or already done in service?
+            throw new InvalidInputException("Error: play needs the chosen game's ID and then the chosen team color separated by a space");
+        }
         return null;
     }
 
-    private String listGames() {
-        return null;
-    }
-
-    private String playGame() {
-        return null;
-    }
-
-    private String observeGame() {
+    private String observeGame(String[] params) throws Exception {
+        assertSignedIn();
+        if (params.length != 1) {
+            throw new InvalidInputException("Error: observe only needs the ID of the game you want to spectate");
+        }
         //serverFacade.joinGame(new JoinGameRequest(authToken, "white", 9)); // change string and int
         return null;
     }
 
-    // need?
     public State getState() {
         return state;
+    }
+
+    private void assertSignedIn() throws InvalidInputException {
+        if (state != State.SIGNED_IN) {
+            throw new InvalidInputException("Error: you must register or log in first");
+        }
+    }
+
+    private void assertSignedOut() throws InvalidInputException {
+        if (state != State.SIGNED_OUT) {
+            throw new InvalidInputException("Error: you must logout first");
+        }
     }
 }

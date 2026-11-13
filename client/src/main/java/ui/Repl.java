@@ -18,7 +18,7 @@ public class Repl {
     // 3 repl loops, prelogin, postlogin, and game
     // have scanner to read input, but maybe not here in this class??
     public void run() {  // repl has scanner read loop. it calls into client to evaluate the scanned line
-        System.out.println("♕ 240 Chess Client: Type help to get started.");
+        System.out.println("♕ 240 Chess Client: Type 'help' to get started.");
         Scanner scanner = new Scanner(System.in);
         var result = "";
 
@@ -32,7 +32,7 @@ public class Repl {
                 System.out.print(error.getMessage()); // something else?
             }
         }
-        System.out.println("Thanks for playing homeslice ^3^");
+
         // need an erase screen func?
         // print column letters
         //printColumnLetters("WHITE");
