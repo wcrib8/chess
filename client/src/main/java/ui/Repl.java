@@ -39,12 +39,8 @@ public class Repl {
 
     public void gameLoop(Scanner scanner) {
         printBoard();
-        System.out.print("just printing board for phase 5 purposes. more to come\n");
+        System.out.print("\njust printing board for phase 5 purposes. more to come\n");
         // have a while in game loop
-    }
-
-    private void printColumnLetters(String teamColor) { // change from string to chessPiece, teamColor?
-
     }
 
     private void printPrompt() {
@@ -55,25 +51,17 @@ public class Repl {
         if (client.getState() == State.GAME) {
             gameLoop(scanner);
         }
+        client.changeState();
     }
 
     private void printBoard() {
-        // check what team it is, print respective board
         // spectator will observe from white perspective? for now
-//        if (client.getTeamColor().equalsIgnoreCase("black")) {
-//            printBlackBoard();
-//        }
-//        else {
-//            printWhiteBoard();
-//        }
         boolean isBlackTeam = client.getTeamColor().equalsIgnoreCase("black");
-
+        System.out.print(SET_TEXT_COLOR_BLACK);
         printColumnLetters(isBlackTeam);
-
-        // print rows all between
-
-
+        printRows(isBlackTeam);
         printColumnLetters(isBlackTeam);
+        System.out.print(RESET_TEXT_COLOR);
 
         // need an erase screen func?
         // print column letters
@@ -83,20 +71,50 @@ public class Repl {
         //printColumnLetters("WHITE");
     }
 
-//    private void printBlackBoard() {
-//        // column
-//    }
-//
-//    private void printWhiteBoard() {
-//
-//    }
-
     private void printColumnLetters(boolean isBlackTeam) {
         if (isBlackTeam) {
-            System.out.print("\n" + SET_BG_COLOR_MAGENTA + SET_TEXT_COLOR_BLACK + "    h  g  f  e  d  c  b  a    ");
+            System.out.print("\n" + SET_BG_COLOR_MAGENTA + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR);
         }
         else {
-            System.out.print("\n" + SET_BG_COLOR_MAGENTA + SET_TEXT_COLOR_BLACK + "    a  b  c  d  e  f  g  h    ");
+            System.out.print("\n" + SET_BG_COLOR_MAGENTA + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR);
+        }
+    }
+
+    private void printRows(boolean isBlackTeam) {
+        if (isBlackTeam) {
+            for (int row = 1; row < 9; row++) {
+                System.out.print("\n");
+                printRowNumber(row);
+                printChessRow(row);
+                printRowNumber(row);
+            }
+        }
+        for (int row = 8; row > 0; row--) {
+            System.out.print("\n");
+            printRowNumber(row);
+            printChessRow(row);
+            printRowNumber(row);
+        }
+    }
+
+    private void printRowNumber(int row) {
+        System.out.print(SET_BG_COLOR_MAGENTA + " " + row + " " + RESET_BG_COLOR);
+    }
+
+    private void printChessRow(int row) {
+        if (row % 2 == 0) {
+            System.out.print(SET_BG_COLOR_BLUE + "   " + SET_BG_COLOR_LIGHT_GREY + "   " +
+                    SET_BG_COLOR_BLUE + "   " + SET_BG_COLOR_LIGHT_GREY + "   " +
+                    SET_BG_COLOR_BLUE + "   " + SET_BG_COLOR_LIGHT_GREY + "   " +
+                    SET_BG_COLOR_BLUE + "   " + SET_BG_COLOR_LIGHT_GREY + "   " +
+                    RESET_BG_COLOR);
+        }
+        else {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + "   " +
+                    SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + "   " +
+                    SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + "   " +
+                    SET_BG_COLOR_LIGHT_GREY + "   " + SET_BG_COLOR_BLUE + "   " +
+                    RESET_BG_COLOR);
         }
     }
 }

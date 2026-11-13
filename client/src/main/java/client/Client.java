@@ -173,6 +173,10 @@ public class Client {
         return state;
     }
 
+    public void changeState() {
+        state = State.SIGNED_IN; // temporary function for phase 5, delete later
+    }
+
     public String getTeamColor() {
         return teamColor;
     }
