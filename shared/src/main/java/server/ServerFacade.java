@@ -99,10 +99,17 @@ public class ServerFacade {
         if (!isSuccessful(status)) {
             var body = response.body();
             //var auth = response.header("authorization");
-            if (body != null) {
-                throw new Exception("Error: " + "status: " + status + " received this json body: " + body);
+//            if (body != null) {
+//                throw new Exception("Error: " + "status: " + status + " received this json body: " + body);
+//            }
+//            throw new Exception("Error: status: " + status + " with null body");
+            if (status == 400) {
+                throw new Exception("you must've tried giving a blank input, try again!");
+            } if (status == 401) {
+                throw new Exception("you're not logged in or registered! do that first");
+            } if (status == 403) {
+                throw new Exception("looks like the option you entered is already taken, try another!");
             }
-            throw new Exception("Error: status: " + status + " with null body");
         }
 
         if (responseClass != null) {

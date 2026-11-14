@@ -133,7 +133,10 @@ public class Client {
         StringBuilder gameList = new StringBuilder();
         for (int gameNum=0; gameNum < result.games().size(); gameNum++) {
             // add number and game name
-            gameList.append(gameNum+1).append(". ").append(result.games().get(gameNum).gameName()).append("\n");
+            gameList.append(gameNum+1).append(". ").append(result.games().get(gameNum).gameName())
+                    .append(" | white player: ").append(result.games().get(gameNum).whiteUsername())
+                    .append(" | black player: ").append(result.games().get(gameNum).blackUsername())
+                    .append("\n");
         }
         return String.valueOf(gameList);
     }
