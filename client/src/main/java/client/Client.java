@@ -60,7 +60,7 @@ public class Client {
 
     private String evaluatePromptGame(String command, String[] params) {
         try {
-            return ""; // change to game functionality later for phase 6
+            return command; // change to game functionality later for phase 6
         } catch(Exception error) {
             return error.getMessage();
         }

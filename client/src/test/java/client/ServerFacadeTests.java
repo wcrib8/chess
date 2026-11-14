@@ -1,15 +1,11 @@
 package client;
 
-import client.exceptions.InvalidInputException;
 import model.requests.*;
 import model.responses.*;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import server.Server;
 import server.ServerFacade;
-import server.exceptions.UnauthorizedException;
-
-import java.lang.reflect.Array;
 
 
 public class ServerFacadeTests {
@@ -47,12 +43,16 @@ public class ServerFacadeTests {
         //server.service.dataAccess.numUsers()
     }
 
-    @Test
     public String loginSuccess() throws Exception {
         registerSuccess();
         LoginResult result = facade.login(new LoginRequest("wolf", "wolf"));
         assertNotNull(result);
         return result.authToken();
+    }
+
+    @Test
+    public void testLoginSuccess() {
+        assertDoesNotThrow(this::loginSuccess);
     }
 
     @Test

@@ -9,7 +9,6 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import model.requests.*;
 import model.responses.*;
-import server.exceptions.UnauthorizedException;
 
 
 public class ServerFacade {

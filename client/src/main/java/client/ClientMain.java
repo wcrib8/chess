@@ -5,11 +5,7 @@ import ui.Repl;
 
 
 public class ClientMain {
-
-    // client main just starts up server connection, or throws error?
-    //private final Repl repl = new Repl();
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         try {
             new Repl().run();
         } catch(Exception error) {

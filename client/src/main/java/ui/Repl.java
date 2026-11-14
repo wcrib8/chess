@@ -19,7 +19,7 @@ public class Repl {
 
     public Repl() {}
 
-    // 3 repl loops, prelogin, postlogin, and game
+    // 3 repl loops, pre-login, post-login, and game
     public void run() {
         System.out.println("♕ 240 Chess Client: Type 'help' to get started.");
         Scanner scanner = new Scanner(System.in);
@@ -43,7 +43,7 @@ public class Repl {
         printBoard(board);
         System.out.print("\njust printing board for phase 5 purposes. more to come\n");
         client.changeState();
-        // have a while in game loop
+        // have while in game loop
     }
 
     private void printPrompt() {
@@ -71,7 +71,7 @@ public class Repl {
 
     private void printColumnLetters(boolean isBlackTeam) {
         if (isBlackTeam) {
-            System.out.print("\n" + SET_BG_COLOR_MAGENTA + "     a   b   c   d   e   f   g   h     " + RESET_BG_COLOR);
+            System.out.print("\n" + SET_BG_COLOR_MAGENTA + "     h   g   f   e   d   c   b   a     " + RESET_BG_COLOR);
         }
         else {
             System.out.print("\n" + SET_BG_COLOR_MAGENTA + "     a   b   c   d   e   f   g   h     " + RESET_BG_COLOR);
@@ -139,7 +139,7 @@ public class Repl {
                 case QUEEN -> System.out.print(BLACK_QUEEN);
                 case KING -> System.out.print(BLACK_KING);
                 default -> System.out.print(EMPTY);
-            };
+            }
         } else {
             switch (board.getPiece(position).getPieceType()) {
                 case PAWN -> System.out.print(WHITE_PAWN);
@@ -149,7 +149,7 @@ public class Repl {
                 case QUEEN -> System.out.print(WHITE_QUEEN);
                 case KING -> System.out.print(WHITE_KING);
                 default -> System.out.print(EMPTY);
-            };
+            }
         }
     }
 }
