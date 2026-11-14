@@ -5,7 +5,6 @@ import model.responses.*;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import server.Server;
-import server.ServerFacade;
 
 
 public class ServerFacadeTests {

@@ -3,7 +3,7 @@ package client;
 import client.exceptions.InvalidInputException;
 import model.requests.*;
 import model.responses.*;
-import server.ServerFacade;
+
 import java.util.Arrays;
 import static java.lang.Integer.parseInt;
 
