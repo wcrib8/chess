@@ -98,11 +98,6 @@ public class ServerFacade {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
             var body = response.body();
-            //var auth = response.header("authorization");
-//            if (body != null) {
-//                throw new Exception("Error: " + "status: " + status + " received this json body: " + body);
-//            }
-//            throw new Exception("Error: status: " + status + " with null body");
             if (status == 400) {
                 throw new Exception("you must've tried giving a blank input, try again!");
             } if (status == 401) {
