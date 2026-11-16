@@ -163,7 +163,7 @@ public class Client {
 
         state = State.GAME;
         teamColor = params[1];
-        return String.format("joined game %s as team %s", params[0], params[1]);
+        return String.format("joined game %s as team %s", params[0], teamColor);
     }
 
     public String observeGame(String[] params) throws Exception {

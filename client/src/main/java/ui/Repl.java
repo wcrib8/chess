@@ -62,17 +62,23 @@ public class Repl {
         boolean isBlackTeam = client.getTeamColor().equalsIgnoreCase("black");
         board.resetBoard();
         System.out.print(SET_TEXT_COLOR_BLACK);
-        printColumnLetters();
+        printColumnLetters(isBlackTeam);
         printAllRows(isBlackTeam, board);
-        printColumnLetters();
+        printColumnLetters(isBlackTeam);
         System.out.print(RESET_TEXT_COLOR);
 
         // need an erase screen func?
     }
 
-    private void printColumnLetters() {
-        System.out.print("\n" + SET_BG_COLOR_MAGENTA + "    h" + COL_SPACE + "g" + COL_SPACE + "f" + COL_SPACE + "e" +
-                COL_SPACE + "d" + COL_SPACE + "c" + COL_SPACE + "b" + COL_SPACE + "a  " + COL_SPACE + RESET_BG_COLOR);
+    private void printColumnLetters(boolean isBlackTeam) {
+        if (isBlackTeam) {
+            System.out.print("\n" + SET_BG_COLOR_MAGENTA + "    h" + COL_SPACE + "g" + COL_SPACE + "f" + COL_SPACE + "e" +
+                    COL_SPACE + "d" + COL_SPACE + "c" + COL_SPACE + "b" + COL_SPACE + "a  " + COL_SPACE + RESET_BG_COLOR);
+        }
+        else {
+            System.out.print("\n" + SET_BG_COLOR_MAGENTA + "    a" + COL_SPACE + "b" + COL_SPACE + "c" + COL_SPACE + "d" +
+                    COL_SPACE + "e" + COL_SPACE + "f" + COL_SPACE + "g" + COL_SPACE + "h  " + COL_SPACE + RESET_BG_COLOR);
+        }
     }
 
     private void printAllRows(boolean isBlackTeam, ChessBoard board) {
@@ -98,19 +104,27 @@ public class Repl {
     }
 
     private void printChessRow(int row, boolean isBlackTeam, ChessBoard board) {
-        for (int column = 1; column < 9; column++) {
-            printBoardBackground(row, column, isBlackTeam);
-            printBoardPiece(row, column, board);
+        // if its black
+        if (isBlackTeam) {
+            for (int column = 8; column > 0; column--) {
+                printBoardBackground(row, column, isBlackTeam);
+                printBoardPiece(row, column, board);
+            }
+        } else {
+            for (int column = 1; column < 9; column++) {
+                printBoardBackground(row, column, isBlackTeam);
+                printBoardPiece(row, column, board);
+            }
         }
     }
 
     private void printBoardBackground(int row, int column, boolean isBlackTeam) {
         if (isBlackTeam) {
             if ((row + column) % 2 == 0) {
-                System.out.print(SET_BG_COLOR_BLUE);
+                System.out.print(SET_BG_COLOR_LIGHT_GREY);
             }
             else {
-                System.out.print(SET_BG_COLOR_LIGHT_GREY);
+                System.out.print(SET_BG_COLOR_BLUE);
             }
         }
         else if ((row + column) % 2 == 0) {

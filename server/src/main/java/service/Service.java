@@ -93,12 +93,14 @@ public class Service {
             }
 
             // add to game, throw if that color is already taken
-            if (color.equals("WHITE")) {
-                if (game.whiteUsername() != null) {
+            if (!color.equals("SPECTATOR")) {
+                if (color.equals("WHITE")) {
+                    if (game.whiteUsername() != null) {
+                        throw new AlreadyTakenException("Error: already taken");
+                    }
+                } else if (game.blackUsername() != null) {
                     throw new AlreadyTakenException("Error: already taken");
                 }
-            } else if (game.blackUsername() != null) {
-                throw new AlreadyTakenException("Error: already taken");
             }
 
             dataAccess.updateGame(game, color, dataAccess.getAuth(request.authToken()).username());
