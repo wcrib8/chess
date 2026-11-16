@@ -17,7 +17,6 @@ import java.util.UUID;
 public class Service {
 
     private final DataAccess dataAccess;
-    private int gameIndex = 0;
 
     public Service(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
@@ -75,10 +74,9 @@ public class Service {
             }
 
             // create new game
-            gameIndex++;
-            dataAccess.createGame(new GameData(gameIndex, null, null, request.gameName(), new ChessGame()));
+            int gameID = dataAccess.createGame(new GameData(0, null, null, request.gameName(), new ChessGame()));
 
-            return new CreateGameResult(gameIndex);
+            return new CreateGameResult(gameID);
         }
         return null;
     }
@@ -89,7 +87,7 @@ public class Service {
 
             // check game exists, then check playerColor is white or black
             String color = request.playerColor();
-            if (game == null || color == null || color.isEmpty() || (!color.equals("WHITE") && !color.equals("BLACK"))) {
+            if (game == null || color == null || color.isEmpty() || (!color.equals("WHITE") && !color.equals("BLACK") && !color.equals("SPECTATOR"))) {
                 throw new BadRequestException("Error: bad request");
             }
 

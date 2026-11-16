@@ -3,6 +3,7 @@ package ui;
 import java.util.Scanner;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import chess.ChessPosition;
 import client.Client;
 import client.State;
@@ -25,7 +26,7 @@ public class Repl {
         Scanner scanner = new Scanner(System.in);
         var result = "";
 
-        while (!result.equals("quit")) {
+        while (!result.equals("quitting, thanks for playing homeslice ^3^")) {
             printPrompt();
             String prompt = scanner.nextLine();
             try {
@@ -61,21 +62,17 @@ public class Repl {
         boolean isBlackTeam = client.getTeamColor().equalsIgnoreCase("black");
         board.resetBoard();
         System.out.print(SET_TEXT_COLOR_BLACK);
-        printColumnLetters(isBlackTeam);
+        printColumnLetters();
         printAllRows(isBlackTeam, board);
-        printColumnLetters(isBlackTeam);
+        printColumnLetters();
         System.out.print(RESET_TEXT_COLOR);
 
         // need an erase screen func?
     }
 
-    private void printColumnLetters(boolean isBlackTeam) {
-        if (isBlackTeam) {
-            System.out.print("\n" + SET_BG_COLOR_MAGENTA + "     h   g   f   e   d   c   b   a     " + RESET_BG_COLOR);
-        }
-        else {
-            System.out.print("\n" + SET_BG_COLOR_MAGENTA + "     a   b   c   d   e   f   g   h     " + RESET_BG_COLOR);
-        }
+    private void printColumnLetters() {
+        System.out.print("\n" + SET_BG_COLOR_MAGENTA + "    h" + COL_SPACE + "g" + COL_SPACE + "f" + COL_SPACE + "e" +
+                COL_SPACE + "d" + COL_SPACE + "c" + COL_SPACE + "b" + COL_SPACE + "a  " + COL_SPACE + RESET_BG_COLOR);
     }
 
     private void printAllRows(boolean isBlackTeam, ChessBoard board) {
@@ -83,15 +80,16 @@ public class Repl {
             for (int row = 1; row < 9; row++) {
                 System.out.print("\n");
                 printRowNumber(row);
-                printChessRow(row, isBlackTeam, board);
+                printChessRow(row, true, board);
                 printRowNumber(row);
             }
-        }
-        for (int row = 8; row > 0; row--) {
-            System.out.print("\n");
-            printRowNumber(row);
-            printChessRow(row, isBlackTeam, board);
-            printRowNumber(row);
+        } else {
+            for (int row = 8; row > 0; row--) {
+                System.out.print("\n");
+                printRowNumber(row);
+                printChessRow(row, false, board);
+                printRowNumber(row);
+            }
         }
     }
 
@@ -102,7 +100,7 @@ public class Repl {
     private void printChessRow(int row, boolean isBlackTeam, ChessBoard board) {
         for (int column = 1; column < 9; column++) {
             printBoardBackground(row, column, isBlackTeam);
-            printBoardPiece(row, column, isBlackTeam, board);
+            printBoardPiece(row, column, board);
         }
     }
 
@@ -123,14 +121,15 @@ public class Repl {
         }
     }
 
-    private void printBoardPiece(int row, int column, boolean isBlackTeam, ChessBoard board) {
+    private void printBoardPiece(int row, int column, ChessBoard board) {
         // find what piece it is, print out that character
         ChessPosition position = new ChessPosition(row, column);
         if (board.getPiece(position) == null) {
             System.out.print(EMPTY);
             return;
         }
-        if (isBlackTeam) {
+        var color = board.getPiece(position).getTeamColor();
+        if (color.equals(ChessGame.TeamColor.BLACK)) {
             switch (board.getPiece(position).getPieceType()) {
                 case PAWN -> System.out.print(BLACK_PAWN);
                 case ROOK -> System.out.print(BLACK_ROOK);
@@ -142,12 +141,12 @@ public class Repl {
             }
         } else {
             switch (board.getPiece(position).getPieceType()) {
-                case PAWN -> System.out.print(WHITE_PAWN);
-                case ROOK -> System.out.print(WHITE_ROOK);
-                case KNIGHT -> System.out.print(WHITE_KNIGHT);
-                case BISHOP -> System.out.print(WHITE_BISHOP);
-                case QUEEN -> System.out.print(WHITE_QUEEN);
-                case KING -> System.out.print(WHITE_KING);
+                case PAWN -> System.out.print(SET_TEXT_COLOR_WHITE + WHITE_PAWN + SET_TEXT_COLOR_BLACK);
+                case ROOK -> System.out.print(SET_TEXT_COLOR_WHITE + WHITE_ROOK + SET_TEXT_COLOR_BLACK);
+                case KNIGHT -> System.out.print(SET_TEXT_COLOR_WHITE + WHITE_KNIGHT + SET_TEXT_COLOR_BLACK);
+                case BISHOP -> System.out.print(SET_TEXT_COLOR_WHITE + WHITE_BISHOP + SET_TEXT_COLOR_BLACK);
+                case QUEEN -> System.out.print(SET_TEXT_COLOR_WHITE + WHITE_QUEEN + SET_TEXT_COLOR_BLACK);
+                case KING -> System.out.print(SET_TEXT_COLOR_WHITE + WHITE_KING + SET_TEXT_COLOR_BLACK);
                 default -> System.out.print(EMPTY);
             }
         }

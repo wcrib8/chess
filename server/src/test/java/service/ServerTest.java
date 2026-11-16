@@ -146,10 +146,10 @@ class ServerTest {
         RegisterResult register = service.register(jojo);
         CreateGameRequest request = new CreateGameRequest(register.authToken(), "war");
         var result = service.createGame(request);
-        assertEquals(1, result.gameID());
+        assertNotNull(result.gameID());
         CreateGameRequest request2 = new CreateGameRequest(register.authToken(), "battle");
         var result2 = service.createGame(request2);
-        assertEquals(2, result2.gameID());
+        assertTrue(result.gameID() < result2.gameID());
     }
 
     @Test
@@ -171,10 +171,10 @@ class ServerTest {
     public void joinGameSuccessful() throws DataAccessException, AlreadyTakenException, UnauthorizedException, BadRequestException {
         RegisterResult register = service.register(jojo);
         CreateGameRequest request = new CreateGameRequest(register.authToken(), "war");
-        service.createGame(request);
-        assertNull(dataAccess.getGame(1).whiteUsername());
-        service.joinGame(new JoinGameRequest(register.authToken(), "WHITE", 1));
-        assertNotEquals(null, dataAccess.getGame(1).whiteUsername());
+        var result = service.createGame(request);
+        assertNull(dataAccess.getGame(result.gameID()).whiteUsername());
+        service.joinGame(new JoinGameRequest(register.authToken(), "WHITE", result.gameID()));
+        assertNotEquals(null, dataAccess.getGame(result.gameID()).whiteUsername());
     }
 
     @Test
@@ -193,11 +193,11 @@ class ServerTest {
     public void joinFullGameUnsuccessful() throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
         RegisterResult register = service.register(jojo);
         CreateGameRequest request = new CreateGameRequest(register.authToken(), "war");
-        service.createGame(request);
-        service.joinGame(new JoinGameRequest(register.authToken(), "WHITE", 1));
-        service.joinGame(new JoinGameRequest(register.authToken(), "BLACK", 1));
-        assertThrows(AlreadyTakenException.class, () -> service.joinGame(new JoinGameRequest(register.authToken(), "WHITE", 1)));
-        assertThrows(AlreadyTakenException.class, () -> service.joinGame(new JoinGameRequest(register.authToken(), "BLACK", 1)));
+        var result = service.createGame(request);
+        service.joinGame(new JoinGameRequest(register.authToken(), "WHITE", result.gameID()));
+        service.joinGame(new JoinGameRequest(register.authToken(), "BLACK", result.gameID()));
+        assertThrows(AlreadyTakenException.class, () -> service.joinGame(new JoinGameRequest(register.authToken(), "WHITE", result.gameID())));
+        assertThrows(AlreadyTakenException.class, () -> service.joinGame(new JoinGameRequest(register.authToken(), "BLACK", result.gameID())));
 
     }
 }

@@ -79,13 +79,12 @@ public class MySqlDataAccess implements DataAccess {
         return -1;
     }
 
-    public void createGame(GameData gameData) throws DataAccessException {
-        var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+    public int createGame(GameData gameData) throws DataAccessException {
+        var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         String json = new Gson().toJson(gameData.game());
         try {
-            executeUpdate(
+            return executeUpdate(
                     statement,
-                    gameData.gameID(),
                     gameData.whiteUsername(),
                     gameData.blackUsername(),
                     gameData.gameName(),
@@ -143,10 +142,10 @@ public class MySqlDataAccess implements DataAccess {
 
     public void updateGame(GameData gameData, String playerColor, String username) throws DataAccessException {
         try {
-            String statement;
+            String statement = null;
             if (playerColor.equals("WHITE")) {
                 statement = "UPDATE games SET whiteUsername=? WHERE gameID=?";
-            } else {
+            } else if (playerColor.equals("BLACK")) {
                 statement = "UPDATE games SET blackUsername=? WHERE gameID=?";
             }
             executeUpdate(statement, username, gameData.gameID());
@@ -209,11 +208,14 @@ public class MySqlDataAccess implements DataAccess {
         return -1;
     }
 
-    private void executeUpdate(String statement, Object... params) throws SQLException, DataAccessException {
+    private int executeUpdate(String statement, Object... params) throws SQLException, DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 iterateParameters(params, ps);
                 ps.executeUpdate();
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    return rs.next() ? rs.getInt(1) : 0;
+                }
             }
         } catch (SQLException error) {
             throw new DataAccessException("Error: failed to connect to database. ", error);

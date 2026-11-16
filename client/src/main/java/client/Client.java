@@ -3,7 +3,6 @@ package client;
 import client.exceptions.InvalidInputException;
 import model.requests.*;
 import model.responses.*;
-
 import java.util.Arrays;
 import static java.lang.Integer.parseInt;
 
@@ -121,7 +120,7 @@ public class Client {
         if (params.length != 1) {
             throw new InvalidInputException("Error: create takes one word for the name of your chess game after 'create' and a space");
         }
-        CreateGameResult result = serverFacade.createGame(new CreateGameRequest(authToken, params[0]));
+        serverFacade.createGame(new CreateGameRequest(authToken, params[0]));
         return String.format("Created game %s", params[0]);
     }
 
@@ -132,11 +131,20 @@ public class Client {
         ListGamesResult result = serverFacade.listGames(new ListGamesRequest(authToken));
         StringBuilder gameList = new StringBuilder();
         for (int gameNum=0; gameNum < result.games().size(); gameNum++) {
-            // add number and game name
+            var white = result.games().get(gameNum).whiteUsername();
+            var whiteName = (white != null) ? white : "*not taken yet*";
+            var black = result.games().get(gameNum).blackUsername();
+            var blackName = (black != null) ? black : "*not taken yet*";
+
             gameList.append(gameNum+1).append(". ").append(result.games().get(gameNum).gameName())
-                    .append(" | white player: ").append(result.games().get(gameNum).whiteUsername())
-                    .append(" | black player: ").append(result.games().get(gameNum).blackUsername())
+                    .append(" | white player: ").append(whiteName)
+                    .append(" | black player: ").append(blackName)
                     .append("\n");
+        }
+
+        // if empty list have placeholder string
+        if (result.games().isEmpty()) {
+            return "no games yet!";
         }
         return String.valueOf(gameList);
     }
@@ -151,7 +159,7 @@ public class Client {
         } catch(Exception error) {
             throw new InvalidInputException("Error: gameID is specified first, and should only be a number separated by spaces");
         }
-        serverFacade.joinGame(new JoinGameRequest(authToken, params[1], gameID));
+        serverFacade.joinGame(new JoinGameRequest(authToken, params[1].toUpperCase(), gameID));
 
         state = State.GAME;
         teamColor = params[1];
@@ -162,7 +170,7 @@ public class Client {
         if (params.length != 1) {
             throw new InvalidInputException("Error: observe only needs the ID of the game you want to spectate");
         }
-        serverFacade.joinGame(new JoinGameRequest(authToken, null, parseInt(params[0]))); // change string and int
+        serverFacade.joinGame(new JoinGameRequest(authToken, "SPECTATOR", parseInt(params[0]))); // change string and int
 
         state = State.GAME;
         teamColor = "spectator";

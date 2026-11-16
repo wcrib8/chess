@@ -87,7 +87,7 @@ public class ServerFacadeTests {
         String auth = loginSuccess();
         //assertThrows(Exception.class, () -> facade.joinGame(new JoinGameRequest(auth, "white", 1)));
         facade.createGame(new CreateGameRequest(auth, "fun"));
-        assertDoesNotThrow(() -> facade.joinGame(new JoinGameRequest(auth, "white", 1)));
+        assertDoesNotThrow(() -> facade.joinGame(new JoinGameRequest(auth, "WHITE", 1)));
     }
 
 }

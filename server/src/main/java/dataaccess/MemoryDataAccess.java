@@ -34,8 +34,9 @@ public class MemoryDataAccess implements DataAccess {
         return users.size();
     }
 
-    public void createGame(GameData gameData) {
+    public int createGame(GameData gameData) {
         games.add(gameData);
+        return games.size()-1;
     }
 
     public GameData getGame(int gameID) {

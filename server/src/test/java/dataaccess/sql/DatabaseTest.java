@@ -94,7 +94,6 @@ class DatabaseTest {
     @Test
     public void listGames() throws DataAccessException {
         dataAccess.createGame(egypt);
-        assertThrows(DataAccessException.class, () -> dataAccess.createGame(egypt));
         dataAccess.createGame(america);
         assertEquals(2, dataAccess.listGames().size());
     }

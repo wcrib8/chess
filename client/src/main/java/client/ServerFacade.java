@@ -31,13 +31,13 @@ public class ServerFacade {
     public RegisterResult register(RegisterRequest registerRequest) throws Exception {
         var request = buildRequest("POST", "/user", registerRequest, null);
         var response = sendRequest(request);
-        return handleResponse(response, RegisterResult.class);
+        return handleResponse(response, RegisterResult.class, "register");
     }
 
     public LoginResult login(LoginRequest loginRequest) throws Exception {
         var request = buildRequest("POST", "/session", loginRequest, null);
         var response = sendRequest(request);
-        return handleResponse(response, LoginResult.class);
+        return handleResponse(response, LoginResult.class, "login");
     }
 
     public void logout(LogoutRequest logoutRequest) throws Exception {
@@ -49,18 +49,19 @@ public class ServerFacade {
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws Exception {
         var request = buildRequest("POST", "/game", createGameRequest, createGameRequest.authToken());
         var response = sendRequest(request);
-        return handleResponse(response, CreateGameResult.class);
+        return handleResponse(response, CreateGameResult.class, "create");
     }
 
     public void joinGame(JoinGameRequest joinGameRequest) throws Exception {
         var request = buildRequest("PUT", "/game", joinGameRequest, joinGameRequest.authToken());
-        sendRequest(request);
+        var response = sendRequest(request);
+        handleResponse(response, null, "join");
     }
 
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws Exception {
         var request = buildRequest("GET", "/game", listGamesRequest, listGamesRequest.authToken());
         var response = sendRequest(request);
-        return handleResponse(response, ListGamesResult.class);
+        return handleResponse(response, ListGamesResult.class, "list");
     }
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
@@ -94,23 +95,38 @@ public class ServerFacade {
         }
     }
 
-    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws Exception {
+    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass, String action) throws Exception {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
-            var body = response.body();
+            //var body = response.body();
             if (status == 400) {
-                throw new Exception("you must've tried giving a blank input, try again!");
+                if (action.equals("join")) {
+                    throw new Exception("Error: you must've tried joining a team other than 'white' or 'black', or that game" +
+                            " doesn't exist, try again!");
+                }
+                throw new Exception("Error: you must've tried giving a blank input, try again!");
             } if (status == 401) {
-                throw new Exception("you're not logged in or registered! do that first");
+                if (action.equals("login")) {
+                    throw new Exception("Error: the user you tried logging in with is not registered! do that first");
+                }
+                throw new Exception("Error: you're not logged in or registered! do that first");
             } if (status == 403) {
-                throw new Exception("looks like the option you entered is already taken, try another!");
+                switch (action) {
+                    case "register" ->
+                            throw new Exception("Error: looks like the username and password you entered is already taken, try again!");
+                    case "create" ->
+                            throw new Exception("Error: looks like the game you tried to create already exists!");
+                    case "join" ->
+                            throw new Exception("Error: looks like the team you entered is already taken in that game!");
+                    default ->
+                            throw new Exception("Error: looks like the option you entered is already taken, try another!");
+                }
             }
         }
 
         if (responseClass != null) {
             return new Gson().fromJson(response.body(), responseClass);
         }
-
         return null;
     }
 
