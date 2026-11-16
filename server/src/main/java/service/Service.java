@@ -87,7 +87,8 @@ public class Service {
 
             // check game exists, then check playerColor is white or black
             String color = request.playerColor();
-            if (game == null || color == null || color.isEmpty() || (!color.equals("WHITE") && !color.equals("BLACK") && !color.equals("SPECTATOR"))) {
+            if (game == null || color == null || color.isEmpty()
+                    || (!color.equals("WHITE") && !color.equals("BLACK") && !color.equals("SPECTATOR"))) {
                 throw new BadRequestException("Error: bad request");
             }
 
