@@ -104,30 +104,21 @@ public class Repl {
     }
 
     private void printChessRow(int row, boolean isBlackTeam, ChessBoard board) {
-        // if its black
         if (isBlackTeam) {
             for (int column = 8; column > 0; column--) {
-                printBoardBackground(row, column, isBlackTeam);
+                printBoardBackground(row, column);
                 printBoardPiece(row, column, board);
             }
         } else {
             for (int column = 1; column < 9; column++) {
-                printBoardBackground(row, column, isBlackTeam);
+                printBoardBackground(row, column);
                 printBoardPiece(row, column, board);
             }
         }
     }
 
-    private void printBoardBackground(int row, int column, boolean isBlackTeam) {
-        if (isBlackTeam) {
-            if ((row + column) % 2 == 0) {
-                System.out.print(SET_BG_COLOR_LIGHT_GREY);
-            }
-            else {
-                System.out.print(SET_BG_COLOR_BLUE);
-            }
-        }
-        else if ((row + column) % 2 == 0) {
+    private void printBoardBackground(int row, int column) {
+        if ((row + column) % 2 == 0) {
             System.out.print(SET_BG_COLOR_LIGHT_GREY);
         }
         else {
